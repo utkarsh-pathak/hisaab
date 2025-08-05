@@ -1,0 +1,21 @@
+# Ignore directories specified by the user
+expense-categorisation/
+K8s/
+
+# Python / Backend specific
+backend/.serverless/
+backend/.env
+__pycache__/
+*.pyc
+.venv
+
+# Node.js / Frontend specific
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.npmrc
+backend/.npmrc
+*.log
+
+# macOS specific
+.DS_Store

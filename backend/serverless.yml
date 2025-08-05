@@ -1,0 +1,25 @@
+service: expense-backend-hisaab
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-south-1
+
+functions:
+  app:
+    handler: app.main.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+      - http:
+          path: "{proxy+}"
+          method: ANY
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: false
+    usePoetry: true
