@@ -123,7 +123,7 @@ const SelfExpenseDetail = ({ expense, onBack, onSave, userId }) => {
 
           <div className="mb-8 border-b border-gray-dark pb-6 space-y-4">
             <div className="space-y-2">
-              <p className="text-5xl font-bold text-purple-light tracking-tight">
+              <p className="text-3xl font-bold text-purple-light tracking-tight">
                 ₹{amount?.toFixed(2) || "0.00"}
               </p>
               <p className="text-xl text-gray-medium">{description}</p>

@@ -63,30 +63,25 @@ const TagExpenseModal = ({ onClose, userId, tagId, onConfirm }) => {
       <div className="bg-gray-800 rounded-3xl p-8 shadow-lg w-[40rem]">
         {" "}
         {/* Increased width, rounded corners */}
-        <h2 className="text-3xl font-semibold text-white mb-8">
+        <h2 className="text-2xl font-semibold text-white mb-6">
           Add Expense
-        </h2>{" "}
-        {/* Larger title */}
+        </h2>
         {isLoading && (
           <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
             <Loader size="lg" />
           </div>
         )}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {" "}
-          {/* Increased spacing */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Expense Type Toggle */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
+            <label className="block text-xs font-medium text-gray-400 mb-2">
               Expense Type
             </label>
-            <div className="flex space-x-3">
-              {" "}
-              {/* Increased spacing */}
+            <div className="flex space-x-2">
               <button
                 type="button"
                 onClick={() => setExpenseType("positive")}
-                className={`px-6 py-3 rounded-lg text-base font-medium transition-colors duration-300 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
                   expenseType === "positive"
                     ? "bg-purple-500 text-white hover:bg-purple-600"
                     : "bg-gray-700 text-gray-400 hover:bg-gray-600"
@@ -97,7 +92,7 @@ const TagExpenseModal = ({ onClose, userId, tagId, onConfirm }) => {
               <button
                 type="button"
                 onClick={() => setExpenseType("negative")}
-                className={`px-6 py-3 rounded-lg text-base font-medium transition-colors duration-300 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
                   expenseType === "negative"
                     ? "bg-purple-500 text-white hover:bg-purple-600"
                     : "bg-gray-700 text-gray-400 hover:bg-gray-600"
@@ -109,45 +104,43 @@ const TagExpenseModal = ({ onClose, userId, tagId, onConfirm }) => {
           </div>
           {/* Description Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
+            <label className="block text-xs font-medium text-gray-400 mb-2">
               Description (Optional)
             </label>
             <input
               type="text"
               name="description"
-              className="w-full p-4 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-base" // Increased padding and font size
+              className="w-full p-3 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-sm"
               placeholder="Enter description"
             />
           </div>
           {/* Amount Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
+            <label className="block text-xs font-medium text-gray-400 mb-2">
               Amount
             </label>
             <input
               type="number"
               name="amount"
-              className="w-full p-4 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-base" // Increased padding and font size
+              className="w-full p-3 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-sm"
               step="0.01"
               required
               placeholder="Enter amount"
             />
           </div>
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
-            {" "}
-            {/* Increased spacing */}
+          <div className="flex justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 rounded-lg text-base font-medium text-gray-400 hover:text-white bg-gray-700 transition-colors duration-300" // Increased padding and font size
+              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white bg-gray-700 transition-colors duration-300"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-8 py-3 rounded-lg text-base font-medium bg-purple-500 hover:bg-purple-600 text-white transition-colors duration-300" // Increased padding and font size
+              className="px-6 py-2 rounded-lg text-sm font-medium bg-purple-500 hover:bg-purple-600 text-white transition-colors duration-300"
             >
               Add Expense
             </button>

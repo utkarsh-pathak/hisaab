@@ -39,7 +39,7 @@ const TagCard = ({ tag, onClick, onDelete }) => {
             >
               <Tag className="w-5 h-5 text-purple-light" />
             </div>
-            <h3 className="text-lg font-semibold text-white group-hover:text-purple-light-200 transition-colors duration-300">
+            <h3 className="text-base font-semibold text-white group-hover:text-purple-light-200 transition-colors duration-300">
               {tag.name}
             </h3>
           </div>

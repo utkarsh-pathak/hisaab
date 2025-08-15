@@ -139,17 +139,17 @@ const TagDetail = ({ tagId, onBack }) => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="space-y-2">
-                      <h3 className="text-lg font-semibold text-purple-light-200">
+                      <h3 className="text-base font-semibold text-purple-light-200">
                         {expense.description || "-"}
                       </h3>
-                      <div className="flex items-center space-x-3 text-sm text-gray-400">
+                      <div className="flex items-center space-x-3 text-xs text-gray-400">
                         <Calendar className="w-4 h-4" />
                         <span>{formatDate(expense.created_at)}</span>
                         <span>{formatTime(expense.created_at)}</span>
                       </div>
                     </div>
                     <div
-                      className={`flex items-center space-x-2 text-base font-semibold px-2 py-1 rounded-full ${
+                      className={`flex items-center space-x-2 text-sm font-semibold px-2 py-1 rounded-full ${
                         isCredit
                           ? "text-green-400 bg-green-900/50"
                           : "text-red-400 bg-red-900/50"
