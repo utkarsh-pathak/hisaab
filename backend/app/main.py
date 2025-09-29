@@ -10,7 +10,7 @@ from pulp import LpContinuous, LpMinimize, LpProblem, LpVariable, lpSum
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import selectinload
-from sqlmodel import Session, func, select
+from sqlmodel import Session, func, select, update
 
 from app.db.database import create_db_and_tables, engine
 from app.db.models import *
@@ -1662,35 +1662,45 @@ def delete_tag(
     Delete a tag by ID. Validates if the tag belongs to the user.
     Updates related activity records, removes expenses, and deletes the tag.
     """
-    tag = session.get(Tag, tag_id)
+    try:
+        tag = session.get(Tag, tag_id)
 
-    if not tag:
-        raise HTTPException(status_code=404, detail="Tag not found")
+        if not tag:
+            raise HTTPException(status_code=404, detail="Tag not found")
 
-    if tag.user_id != user_id:
-        raise HTTPException(status_code=403, detail="Tag does not belong to the user")
+        if tag.user_id != user_id:
+            raise HTTPException(
+                status_code=403, detail="Tag does not belong to the user"
+            )
 
-    # Fetch associated expenses
-    associated_expenses = (
-        session.query(SelfManagementExpense)
-        .filter(SelfManagementExpense.tag_id == tag_id)
-        .all()
-    )
-    expense_ids = [expense.id for expense in associated_expenses]
+        # Fetch associated expenses
+        associated_expenses = session.exec(
+            select(SelfManagementExpense).where(SelfManagementExpense.tag_id == tag_id)
+        ).all()
+        expense_ids = [expense.id for expense in associated_expenses]
 
-    # Update activities for all associated expenses in bulk
-    if expense_ids:
-        session.query(Activity).filter(
-            Activity.self_expense_id.in_(expense_ids)
-        ).update({"self_expense_id": None}, synchronize_session=False)
+        # Update activities for all associated expenses in bulk
+        if expense_ids:
+            session.exec(
+                update(Activity)
+                .where(Activity.self_expense_id.in_(expense_ids))
+                .values(self_expense_id=None)
+            )
 
-    # Delete associated expenses
-    for expense in associated_expenses:
-        session.delete(expense)
+        # Delete associated expenses
+        for expense in associated_expenses:
+            session.delete(expense)
 
-    # Delete the tag
-    session.delete(tag)
-    session.commit()
+        # Delete the tag
+        session.delete(tag)
+        session.commit()
+    except SQLAlchemyError:
+        session.rollback()
+        raise HTTPException(
+            status_code=500, detail="An error occurred while deleting the tag."
+        )
+
+
 
 
 class SelfExpenseCreateRequest(BaseModel):

@@ -26,26 +26,26 @@ const TagCard = ({ tag, onClick, onDelete }) => {
         className="absolute inset-0 bg-gradient-to-tr from-purple/5 via-purple-light/5 to-purple-darker/10 
                  opacity-0 group-hover:opacity-100 transition-opacity duration-300"
       />
-      <div className="relative z-10 p-6">
+      <div className="relative z-10 p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div
-            className="flex items-center space-x-4 cursor-pointer"
+            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer"
             onClick={onClick}
           >
             <div
-              className="p-3 bg-gradient-to-br from-purple/20 to-purple-light/10 rounded-xl
+              className="p-2 bg-gradient-to-br from-purple/20 to-purple-light/10 rounded-xl
                        ring-1 ring-purple-light/20 backdrop-blur-sm group-hover:ring-purple-light/30
                        transition-all duration-300"
             >
-              <Tag className="w-5 h-5 text-purple-light" />
+              <Tag className="w-4 h-4 text-purple-light" />
             </div>
-            <h3 className="text-base font-semibold text-white group-hover:text-purple-light-200 transition-colors duration-300">
+            <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-purple-light-200 transition-colors duration-300">
               {tag.name}
             </h3>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <span
-              className={`flex items-center space-x-1 text-sm font-medium px-4 py-1.5 rounded-full
+              className={`flex items-center space-x-1 text-xs sm:text-sm font-medium px-2 py-0.5 rounded-full
                        ${
                          isCredit
                            ? "bg-green-500/10 text-green-400"
@@ -56,7 +56,7 @@ const TagCard = ({ tag, onClick, onDelete }) => {
               <span>₹{Math.abs(tag.total_amount).toFixed(2)}</span>
             </span>
             <Trash2
-              className="w-5 h-5 text-gray-medium group-hover:text-red-500 cursor-pointer transition-all duration-300"
+              className="w-4 h-4 text-gray-medium group-hover:text-red-500 cursor-pointer transition-all duration-300"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(tag.id);
@@ -182,13 +182,15 @@ const Self = ({ user }) => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6">
       <div
         className="bg-gradient-to-b from-dark to-dark-surface 
-                      rounded-3xl shadow-xl p-8 space-y-6"
+                      rounded-3xl shadow-xl p-4 sm:p-8 space-y-4 sm:space-y-6"
       >
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-purple-light">Tags</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-purple-light">
+            Tags
+          </h2>
           <button
             onClick={toggleModal}
             className="p-3 bg-purple text-white rounded-xl
@@ -196,7 +198,7 @@ const Self = ({ user }) => {
                        flex items-center space-x-2"
           >
             <Plus className="w-5 h-5" />
-            <span className="font-medium">Tag</span>
+            <span className="font-medium hidden sm:inline">Tag</span>
           </button>
         </div>
 
@@ -206,7 +208,7 @@ const Self = ({ user }) => {
           </div>
         ) : (
           <>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {tags.map((tag) => (
                 <TagCard
                   key={tag.id}
@@ -220,10 +222,10 @@ const Self = ({ user }) => {
             {tags.length === 0 && (
               <div className="text-center py-12">
                 <Tag className="w-12 h-12 text-purple-light/30 mx-auto mb-4" />
-                <p className="text-xl font-semibold text-gray-400 mb-2">
+                <p className="text-base sm:text-xl font-semibold text-gray-400 mb-2">
                   No tags found
                 </p>
-                <p className="text-gray-500">
+                <p className="text-sm sm:text-base text-gray-500">
                   Create a tag to organize your expenses
                 </p>
               </div>
@@ -236,10 +238,10 @@ const Self = ({ user }) => {
       {isModalOpen && !tagToDelete && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50">
           <div
-            className="bg-dark-surface rounded-2xl p-6 w-96 shadow-xl
+            className="bg-dark-surface rounded-2xl p-4 sm:p-6 w-full max-w-sm shadow-xl
                          border border-gray-medium/10"
           >
-            <h3 className="text-xl font-bold text-purple-light mb-6">
+            <h3 className="text-lg sm:text-xl font-bold text-purple-light mb-6">
               Create New Tag
             </h3>
             <input
@@ -247,7 +249,7 @@ const Self = ({ user }) => {
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="Enter tag name"
-              className="w-full p-3 bg-dark border border-gray-medium/20 rounded-xl
+              className="w-full p-2 sm:p-3 bg-dark border border-gray-medium/20 rounded-xl
                          text-white placeholder-gray-500 focus:border-purple-light
                          transition-colors duration-300"
             />
