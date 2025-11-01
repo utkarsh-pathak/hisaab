@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Snackbar from "./Snackbar";
-import ParticipantSelect from "./FriendSelect"; // Component to add friends
-import { X } from "lucide-react";
+import ParticipantSelect from "./FriendSelect";
 import axios from "axios";
 import Loader from "./Loader";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -83,72 +85,64 @@ const UpdateGroupModal = ({ group, userId, isOpen, onClose, onUpdate }) => {
     }
   };
 
-  if (loading) {
+  if (loading && !isOpen) {
     return <Loader size="md" />;
   }
 
   return isOpen ? (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-surface rounded-xl shadow-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-dark">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold text-white">Update Group</h3>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-dark rounded-lg transition-colors duration-200"
-            >
-              <X className="w-5 h-5 text-gray-400 hover:text-white" />
-            </button>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-lg max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="p-6 pb-4">
+            <DialogTitle>Update Group</DialogTitle>
+          </DialogHeader>
+
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-6">
+            <div className="space-y-5 pb-6">
+              {/* Group Name */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-text-secondary">
+                  Group Name
+                </label>
+                <Input
+                  type="text"
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                  placeholder="Enter group name"
+                  required
+                />
+              </div>
+
+              {/* Add and Manage Participants */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-text-secondary">
+                  Manage Participants
+                </label>
+                <ParticipantSelect
+                  friends={friendsList}
+                  selectedParticipants={selectedParticipants}
+                  setSelectedParticipants={setSelectedParticipants}
+                  showPayerDropdown={false}
+                  placeholderText="Search and select participants"
+                  noParticipantsMessage="No friends found."
+                  userId={userId}
+                />
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-4">
-          {/* Group Name */}
-          <label className="block">
-            <span className="text-gray font-medium">Group Name:</span>
-            <input
-              type="text"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              className="w-full border border-gray-medium bg-dark px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-light focus:border-transparent outline-none text-gray transition-all duration-200 mt-1"
-              required
-            />
-          </label>
-
-          {/* Add and Manage Participants */}
-          <label className="block mt-4">
-            <span className="text-gray font-medium">Manage Participants:</span>
-            <ParticipantSelect
-              friends={friendsList}
-              selectedParticipants={selectedParticipants}
-              setSelectedParticipants={setSelectedParticipants}
-              showPayerDropdown={false}
-              placeholderText="Search and select participants"
-              noParticipantsMessage="No friends found."
-              userId={userId}
-            />
-          </label>
-        </div>
-
-        {/* Footer */}
-        <div className="p-6 border-t border-gray-dark bg-dark/40 flex justify-end space-x-4">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 text-gray hover:text-white transition-colors duration-200"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-6 py-2 bg-purple hover:bg-purple-darker text-white rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      </div>
+          {/* Footer - Fixed */}
+          <DialogFooter className="p-6 pt-4">
+            <Button onClick={onClose} variant="ghost">
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={loading || !groupName}>
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Snackbar for error or success messages */}
       {showSnackbar && (
@@ -158,7 +152,7 @@ const UpdateGroupModal = ({ group, userId, isOpen, onClose, onUpdate }) => {
           onClose={() => setShowSnackbar(false)}
         />
       )}
-    </div>
+    </>
   ) : null;
 };
 

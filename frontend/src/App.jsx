@@ -45,10 +45,7 @@ function App() {
     setInitialLoading(false);
   }, [dispatch]);
 
-  useEffect(() => {
-    const img = new Image();
-    img.src = "../assets/vyaya-background.png";
-  }, []);
+  // Background image removed for cleaner dark mode design
 
   const handleLoginSuccess = async (credentialResponse) => {
     setLoading(true);
@@ -116,21 +113,23 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-white">
+    <div className="min-h-screen flex flex-col bg-background text-text-primary">
       {initialLoading ? (
         <Loader />
       ) : loading ? (
         <Loader />
       ) : !user ? (
-        <div className="flex flex-col items-center justify-center flex-grow space-y-8 p-4 text-center">
-          <h1 className="text-4xl font-bold text-purple-500">
-            Welcome to ExpenseTracker
-          </h1>
-          <p className="text-lg text-gray-300 max-w-md">
-            Effortlessly manage and split your expenses with friends and family.
-            Get started by signing in with Google.
-          </p>
-          <div className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-200">
+        <div className="flex flex-col items-center justify-center flex-grow space-y-8 p-6 text-center">
+          <div className="space-y-4 max-w-lg">
+            <h1 className="text-4xl sm:text-5xl font-bold text-text-primary">
+              Welcome to <span className="text-primary">Hisaab</span>
+            </h1>
+            <p className="text-lg text-text-secondary">
+              Effortlessly manage and split your expenses with friends and family.
+              Get started by signing in with Google.
+            </p>
+          </div>
+          <div className="bg-primary/10 backdrop-blur-sm border border-primary/20 hover:bg-primary/20 text-white font-semibold py-3 px-8 rounded-2xl shadow-glass transition-all duration-300 hover:scale-105">
             <GoogleLogin
               onSuccess={handleLoginSuccess}
               onFailure={handleLoginFailure}

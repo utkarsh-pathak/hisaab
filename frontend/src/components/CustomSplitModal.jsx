@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { X, IndianRupee, Share2 } from "lucide-react";
+import { IndianRupee, Share2 } from "lucide-react";
 import Snackbar from "./Snackbar";
 import UserIcon from "./UserIcon";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Button } from "./ui/button";
 
 const CustomSplitModal = ({
   participants,
@@ -19,6 +21,21 @@ const CustomSplitModal = ({
   );
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [showSnackbar, setShowSnackbar] = useState(false);
+
+  // Calculate current total
+  const currentTotal = splitByAmount
+    ? Object.values(splitValues).reduce((sum, value) => {
+        const numValue = parseFloat(value);
+        return sum + (isNaN(numValue) ? 0 : numValue);
+      }, 0)
+    : Object.values(splitValues).reduce((sum, value) => {
+        const shareValue = parseInt(value, 10);
+        return sum + (isNaN(shareValue) ? 0 : shareValue);
+      }, 0);
+
+  const isValid = splitByAmount
+    ? Math.abs(currentTotal - expectedTotal) <= 0.01
+    : currentTotal > 0;
 
   const handleInputChange = (participantId, value) => {
     setSplitValues((prev) => ({
@@ -58,115 +75,156 @@ const CustomSplitModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-surface rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-dark">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Custom Split</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-dark rounded-lg transition-colors duration-200"
-            >
-              <X className="w-5 h-5 text-gray-400 hover:text-white" />
-            </button>
-          </div>
-        </div>
+    <>
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-4 sm:px-6 py-4">
+            <DialogTitle>Custom Split</DialogTitle>
+          </DialogHeader>
 
-        <div className="p-6">
-          {/* Split Type Selector */}
-          <div className="flex gap-4 p-1 bg-dark rounded-lg mb-8 w-full md:w-auto">
-            <button
-              className={`flex items-center space-x-2 py-2 px-4 rounded-lg transition-all duration-200 ${
-                splitByAmount
-                  ? "bg-purple text-white shadow-lg"
-                  : "text-gray-400 hover:text-white"
-              }`}
-              onClick={() => setSplitByAmount(true)}
-            >
-              <IndianRupee className="w-4 h-4" />
-              <span>Split by Amount</span>
-            </button>
-            <button
-              className={`flex items-center space-x-2 py-2 px-4 rounded-lg transition-all duration-200 ${
-                !splitByAmount
-                  ? "bg-purple text-white shadow-lg"
-                  : "text-gray-400 hover:text-white"
-              }`}
-              onClick={() => setSplitByAmount(false)}
-            >
-              <Share2 className="w-4 h-4" />
-              <span>Split by Share</span>
-            </button>
-          </div>
-
-          {/* Participants List */}
-          <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
-            {participants.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-400">No participants available</p>
-              </div>
-            ) : (
-              participants.map((participant) => (
-                <div
-                  key={participant.id}
-                  className="flex items-center p-3 bg-dark rounded-lg hover:bg-gray-dark transition-colors duration-200"
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6">
+            <div className="space-y-4 pb-4 sm:pb-6">
+              {/* Split Type Selector */}
+              <div className="flex gap-1.5 p-1 bg-background-surface rounded-xl border border-border w-full">
+                <button
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg transition-all text-xs sm:text-sm font-medium min-h-[44px] ${
+                    splitByAmount
+                      ? "bg-primary text-white shadow-md"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
+                  onClick={() => setSplitByAmount(true)}
                 >
-                  <UserIcon user={participant} />
-                  <span className="text-white font-medium ml-3 min-w-[120px]">
-                    {participant.name}
-                  </span>
-                  <div className="flex-grow ml-4">
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={splitValues[participant.id]}
-                        onChange={(e) =>
-                          handleInputChange(participant.id, e.target.value)
-                        }
-                        className="w-full min-w-[150px] px-4 py-2.5 bg-dark-surface border border-gray-dark rounded-lg 
-                          text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple/50
-                          focus:border-purple transition-all duration-200"
-                        placeholder={splitByAmount ? "Amount" : "Share"}
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                        {splitByAmount ? "₹" : ""}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+                  <IndianRupee className="w-4 h-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">By Amount</span>
+                </button>
+                <button
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg transition-all text-xs sm:text-sm font-medium min-h-[44px] ${
+                    !splitByAmount
+                      ? "bg-primary text-white shadow-md"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
+                  onClick={() => setSplitByAmount(false)}
+                >
+                  <Share2 className="w-4 h-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">By Share</span>
+                </button>
+              </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-gray-dark bg-dark/40">
-          <div className="flex justify-end space-x-4">
-            <button
-              className="px-6 py-2.5 text-gray hover:text-white transition-colors duration-200"
-              onClick={onClose}
-            >
+              {/* Participants List */}
+              <div className="space-y-2 max-h-[48vh] overflow-y-auto custom-scrollbar">
+                {participants.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-text-muted text-sm">No participants available</p>
+                  </div>
+                ) : (
+                  participants.map((participant, index) => (
+                    <div
+                      key={participant.id}
+                      className="p-2.5 sm:p-3 bg-background-surface rounded-xl border border-border focus-within:border-primary transition-colors"
+                    >
+                      {/* Name and Icon - Always Horizontal */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <UserIcon user={participant} />
+                        <span className="text-text-primary font-medium text-sm flex-1 truncate">
+                          {participant.name}
+                        </span>
+                        <span className="text-text-muted text-xs">
+                          {index + 1}/{participants.length}
+                        </span>
+                      </div>
+
+                      {/* Input Field - Full Width */}
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={splitValues[participant.id]}
+                          onChange={(e) =>
+                            handleInputChange(participant.id, e.target.value)
+                          }
+                          className="w-full min-h-[48px] px-4 pr-10 bg-background-elevated border-2 border-border rounded-xl
+                            text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary
+                            focus:border-primary transition-all text-base font-medium"
+                          placeholder={splitByAmount ? "Enter amount" : "Enter shares"}
+                          inputMode={splitByAmount ? "decimal" : "numeric"}
+                          step={splitByAmount ? "0.01" : "1"}
+                        />
+                        {splitByAmount && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                            <span className="text-text-muted text-base font-medium">₹</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Summary Card */}
+              {participants.length > 0 && (
+                <div className={`p-3 sm:p-4 rounded-xl border-2 transition-all ${
+                  isValid
+                    ? "bg-success/10 border-success/30"
+                    : "bg-background-surface border-border"
+                }`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-text-secondary">
+                      {splitByAmount ? "Total Amount" : "Total Shares"}
+                    </span>
+                    {isValid && (
+                      <span className="text-xs font-semibold text-success">Valid</span>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className={`text-2xl font-bold ${
+                      isValid ? "text-success" : "text-text-primary"
+                    }`}>
+                      {splitByAmount ? "₹" : ""}{currentTotal.toFixed(splitByAmount ? 2 : 0)}
+                    </span>
+                    {splitByAmount && (
+                      <span className="text-sm text-text-muted">
+                        / ₹{expectedTotal.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                  {!isValid && splitByAmount && (
+                    <p className="text-xs text-error mt-1">
+                      Must equal ₹{expectedTotal.toFixed(2)}
+                    </p>
+                  )}
+                  {!isValid && !splitByAmount && (
+                    <p className="text-xs text-error mt-1">
+                      Total shares must be greater than 0
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer - Fixed */}
+          <DialogFooter className="px-4 sm:px-6 py-4 gap-2">
+            <Button onClick={onClose} variant="ghost" className="flex-1 sm:flex-initial">
               Cancel
-            </button>
-            <button
-              className="px-6 py-2.5 bg-purple hover:bg-purple-darker text-white rounded-lg 
-                transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
+            </Button>
+            <Button
               onClick={handleSave}
+              className="flex-1 sm:flex-initial"
+              disabled={!isValid}
             >
               Save Split
-            </button>
-          </div>
-        </div>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        {showSnackbar && (
-          <Snackbar
-            message={snackbarMessage}
-            onClose={() => setShowSnackbar(false)}
-          />
-        )}
-      </div>
-    </div>
+      {showSnackbar && (
+        <Snackbar
+          message={snackbarMessage}
+          onClose={() => setShowSnackbar(false)}
+        />
+      )}
+    </>
   );
 };
 

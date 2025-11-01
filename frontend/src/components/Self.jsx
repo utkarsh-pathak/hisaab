@@ -8,61 +8,61 @@ import TagDetail from "./TagDetail";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedTag, setActiveContext } from "../store";
 import ConfirmationModal from "./ConfirmationModal";
+import { GlassCard } from "./ui/glass-card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { EmptyState } from "./ui/empty-state";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { cn } from "@/lib/utils";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Tag Card Component
+// Tag Card Component - Warm Dark Mode
 const TagCard = ({ tag, onClick, onDelete }) => {
   const isCredit = tag.total_amount < 0;
+  const hasExpenses = tag.total_amount !== 0;
 
   return (
     <div
-      className="relative overflow-hidden bg-gradient-to-br from-dark-surface via-grey-darker to-dark
-               backdrop-blur-md rounded-xl transition-all duration-300 ease-out
-               border border-gray-medium/10 hover:border-purple-light/20 group shadow-lg hover:shadow-xl
-               hover:-translate-y-1 hover:scale-[1.01]"
+      className="group cursor-pointer p-3.5 rounded-xl bg-background-surface hover:bg-background-elevated transition-all border border-transparent hover:border-primary/20"
+      onClick={onClick}
     >
-      <div
-        className="absolute inset-0 bg-gradient-to-tr from-purple/5 via-purple-light/5 to-purple-darker/10 
-                 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-      />
-      <div className="relative z-10 p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <div
-            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer"
-            onClick={onClick}
-          >
+      <div className="flex items-center justify-between gap-3">
+        {/* Left side - Icon and Name */}
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          <div className="p-2 bg-primary/20 rounded-lg flex-shrink-0">
+            <Tag className="w-4 h-4 text-primary" />
+          </div>
+          <h3 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors truncate">
+            {tag.name}
+          </h3>
+        </div>
+
+        {/* Right side - Amount and Delete */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {hasExpenses && (
             <div
-              className="p-2 bg-gradient-to-br from-purple/20 to-purple-light/10 rounded-xl
-                       ring-1 ring-purple-light/20 backdrop-blur-sm group-hover:ring-purple-light/30
-                       transition-all duration-300"
-            >
-              <Tag className="w-4 h-4 text-purple-light" />
-            </div>
-            <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-purple-light-200 transition-colors duration-300">
-              {tag.name}
-            </h3>
-          </div>
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <span
-              className={`flex items-center space-x-1 text-xs sm:text-sm font-medium px-2 py-0.5 rounded-full
-                       ${
-                         isCredit
-                           ? "bg-green-500/10 text-green-400"
-                           : "bg-red-500/10 text-red-400"
-                       } group-hover:bg-opacity-15 transition-all duration-300`}
-            >
-              {isCredit ? <span>-</span> : <span>+</span>}
-              <span>₹{Math.abs(tag.total_amount).toFixed(2)}</span>
-            </span>
-            <Trash2
-              className="w-4 h-4 text-gray-medium group-hover:text-red-500 cursor-pointer transition-all duration-300"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(tag.id);
+              className="text-xs font-bold px-2.5 py-1 rounded-lg whitespace-nowrap"
+              style={{
+                backgroundColor: isCredit ? "rgba(132, 204, 22, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                color: isCredit ? "#84cc16" : "#ef4444"
               }}
-            />
-          </div>
+            >
+              {isCredit ? "-" : "+"}₹{Math.abs(tag.total_amount).toFixed(2)}
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 hover:bg-error/10 hover:text-error flex-shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(tag.id);
+            }}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </div>
@@ -182,95 +182,75 @@ const Self = ({ user }) => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6">
-      <div
-        className="bg-gradient-to-b from-dark to-dark-surface 
-                      rounded-3xl shadow-xl p-4 sm:p-8 space-y-4 sm:space-y-6"
-      >
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-purple-light">
-            Tags
-          </h2>
-          <button
-            onClick={toggleModal}
-            className="p-3 bg-purple text-white rounded-xl
-                       hover:bg-purple-darker transition-colors duration-300
-                       flex items-center space-x-2"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium hidden sm:inline">Tag</span>
-          </button>
-        </div>
-
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader size="lg" />
-          </div>
-        ) : (
-          <>
-            <div className="space-y-2">
-              {tags.map((tag) => (
-                <TagCard
-                  key={tag.id}
-                  tag={tag}
-                  onClick={() => handleTagClick(tag.id)}
-                  onDelete={() => confirmDeleteTag(tag.id)}
-                />
-              ))}
-            </div>
-
-            {tags.length === 0 && (
-              <div className="text-center py-12">
-                <Tag className="w-12 h-12 text-purple-light/30 mx-auto mb-4" />
-                <p className="text-base sm:text-xl font-semibold text-gray-400 mb-2">
-                  No tags found
-                </p>
-                <p className="text-sm sm:text-base text-gray-500">
-                  Create a tag to organize your expenses
-                </p>
-              </div>
-            )}
-          </>
-        )}
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-text-primary">Tags</h2>
+        <Button onClick={toggleModal} size="default">
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">New Tag</span>
+          <span className="sm:hidden">Tag</span>
+        </Button>
       </div>
 
-      {/* Modal for creating new tag */}
-      {isModalOpen && !tagToDelete && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50">
-          <div
-            className="bg-dark-surface rounded-2xl p-4 sm:p-6 w-full max-w-sm shadow-xl
-                         border border-gray-medium/10"
-          >
-            <h3 className="text-lg sm:text-xl font-bold text-purple-light mb-6">
-              Create New Tag
-            </h3>
-            <input
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader size="lg" />
+        </div>
+      ) : tags.length === 0 ? (
+        <EmptyState
+          icon={Tag}
+          title="No tags found"
+          description="Create tags to organize and track your personal expenses."
+          action={toggleModal}
+          actionLabel="Create Tag"
+        />
+      ) : (
+        <div className="space-y-2.5">
+          {tags.map((tag) => (
+            <TagCard
+              key={tag.id}
+              tag={tag}
+              onClick={() => handleTagClick(tag.id)}
+              onDelete={() => confirmDeleteTag(tag.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Dialog for creating new tag */}
+      <Dialog open={isModalOpen && !tagToDelete} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Tag</DialogTitle>
+            <DialogDescription>
+              Give your tag a name to start organizing expenses.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
               type="text"
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
-              placeholder="Enter tag name"
-              className="w-full p-2 sm:p-3 bg-dark border border-gray-medium/20 rounded-xl
-                         text-white placeholder-gray-500 focus:border-purple-light
-                         transition-colors duration-300"
+              placeholder="e.g., Food, Transport, Shopping"
+              className="w-full"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleCreateTag();
+                }
+              }}
             />
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={toggleModal}
-                className="px-4 py-2 text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateTag}
-                className="px-6 py-2 bg-purple text-white rounded-xl
-                           hover:bg-purple-darker transition-colors duration-300"
-              >
-                Create
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={toggleModal}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateTag} disabled={!newTag.trim()}>
+              Create Tag
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirmation Modal */}
       {isModalOpen && tagToDelete && (

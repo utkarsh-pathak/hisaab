@@ -40,8 +40,8 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
     (state) => state.selectedGroup.expenseCreated
   );
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoader = true) => {
+    if (showLoader) setLoading(true);
     try {
       const expensesUrl = group.group_id
         ? `${API_URL}/api/groups/${group.group_id}/expenses?user_id=${userId}`
@@ -72,7 +72,7 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
       console.error("Error fetching group data:", error);
       setItems([]);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
@@ -107,13 +107,9 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [group, userId]);
-
   // Define fetchGroupDebtSummary function
-  const fetchGroupDebtSummary = async () => {
-    setLoading(true);
+  const fetchGroupDebtSummary = async (showLoader = false) => {
+    if (showLoader) setLoading(true);
     try {
       // Construct the URL conditionally based on the group_id
       const url = group.group_id
@@ -136,12 +132,24 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
       console.error("Error fetching group debt summary:", error);
       setGroupDebtSummary([]); // Reset to an empty array on error
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
+  // Initial data fetch - load both expenses and debts together with single loader
   useEffect(() => {
-    fetchGroupDebtSummary();
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchData(false),
+          fetchGroupDebtSummary(false)
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadInitialData();
   }, [group, userId]);
 
   useEffect(() => {
@@ -228,24 +236,27 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-dark p-8 rounded-3xl shadow-xl">
+    <div className="space-y-6">
       <div className="space-y-6">
         {/* Header Section */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}
-            className="flex items-center text-gray-400 hover:text-purple-light transition-colors duration-200 group"
+            className="flex items-center text-text-secondary hover:text-primary transition-colors duration-200 group tap-target"
           >
             <ArrowLeft className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" />
             <span className="text-sm font-medium">Back to Groups</span>
           </button>
 
-          <div className="flex items-center space-x-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mr-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
               {group.group_name}
             </h2>
-            <button onClick={() => setShowUpdateModal(true)}>
-              <Edit3 className="w-5 h-5 text-gray-400 hover:text-purple-light transition-colors duration-200" />
+            <button
+              onClick={() => setShowUpdateModal(true)}
+              className="tap-target p-2 rounded-lg hover:bg-background-elevated transition-colors"
+            >
+              <Edit3 className="w-5 h-5 text-text-secondary hover:text-primary transition-colors duration-200" />
             </button>
             <ParticipantsIcon onClick={() => setShowParticipantsModal(true)} />
           </div>
@@ -253,23 +264,21 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
 
         {/* Settle Up Button */}
         {showSettleUp && (
-          <button
+          <Button
             onClick={handleSettleUpButtonClick}
-            className="w-full md:w-auto bg-purple hover:bg-purple-darker transition-colors duration-200 text-white py-3 px-6 rounded-lg font-medium shadow-md hover:shadow-lg-hover mb-6"
+            className="w-full md:w-auto"
           >
             Settle Up
-          </button>
+          </Button>
         )}
 
         {/* Delete Group Button */}
-        <div className="sticky top-0 bg-dark p-8 z-10">
-          {group.group_id && ( // Check if group_id is present
-            <DeleteGroupButton
-              onClick={() => setShowDeleteModal(true)}
-              className="w-full" // Ensures full width
-            />
-          )}
-        </div>
+        {group.group_id && (
+          <DeleteGroupButton
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full"
+          />
+        )}
 
         <DeleteGroupModal
           isOpen={showDeleteModal}
@@ -312,9 +321,6 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
           />
         )}
 
-        {/* Loading State */}
-        {loading && <Loader size="lg" className="mt-10" />}
-
         {/* Snackbar */}
         {showSnackbar && (
           <Snackbar
@@ -325,36 +331,36 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
         )}
 
         {/* Combined Expenses and Settlements List */}
-        <ul className="space-y-4 mt-6">
-          {loading ? (
-            <Loader size="lg" className="mt-10" /> // Show loader while fetching data
-          ) : items.length === 0 ? (
-            <div
-              style={{
-                textAlign: "center",
-                color: "#999",
-                fontSize: "1.2em",
-                marginTop: "20px",
-              }}
-            >
-              <p>No expenses or settlements available for this group.</p>
-            </div>
-          ) : (
-            items.map((item) => (
-              <li key={`${item.type}-${item.id}`}>
-                {item.type === "expense" ? (
-                  <ExpenseCard
-                    item={item}
-                    userId={userId}
-                    onClick={() => setSelectedItem(item)}
-                  />
-                ) : (
-                  <SettlementCard item={item} userId={userId} />
-                )}
-              </li>
-            ))
-          )}
-        </ul>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader size="lg" />
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-text-muted text-sm">
+              No expenses or settlements available for this group.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {items.map((item) =>
+              item.type === "expense" ? (
+                <ExpenseCard
+                  key={`expense-${item.id}`}
+                  item={item}
+                  userId={userId}
+                  onClick={() => setSelectedItem(item)}
+                />
+              ) : (
+                <SettlementCard
+                  key={`settlement-${item.id}`}
+                  item={item}
+                  userId={userId}
+                />
+              )
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

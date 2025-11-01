@@ -3,9 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { expenseCreatedForFriend } from "../store";
 import Loader from "./Loader";
 import UserIcon from "./UserIcon";
-import { Plus, ChevronRight } from "lucide-react";
+import { Plus, ChevronRight, UserCheck } from "lucide-react";
 import ExpenseService from "../services/ExpenseService";
 import FriendAddModal from "./FriendAddModal";
+import { Button } from "./ui/button";
+import { EmptyState } from "./ui/empty-state";
 
 const Friends = () => {
   const [friendsSummary, setFriendsSummary] = useState([]);
@@ -74,69 +76,53 @@ const Friends = () => {
       : `Overall, you are owed: ₹${totalBalance.toFixed(2)}`;
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-8 bg-gradient-to-b from-dark to-dark-surface rounded-3xl shadow-xl">
-      {/* Add Friends Button */}
-      <button
-        className="w-full py-4 px-6 mb-8 bg-gradient-to-r from-purple to-purple-dark 
-                   hover:from-purple-light hover:to-purple
-                   text-white rounded-2xl flex items-center justify-center space-x-3 
-                   transition-all duration-300 transform hover:scale-[1.02]
-                   shadow-lg hover:shadow-purple/30"
-        onClick={() => setIsModalOpen(true)}
-      >
-        <Plus size={24} className="text-purple-light" />
-        <span className="font-semibold text-lg">Add Friends</span>
-      </button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-text-primary">Friends</h2>
+        <Button onClick={() => setIsModalOpen(true)} size="default">
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Add Friend</span>
+          <span className="sm:hidden">Friend</span>
+        </Button>
+      </div>
 
       {/* Friends List */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {friendsSummary.length > 0 ? (
           friendsSummary.map((friend) => (
             <div
               key={friend.friend_id}
-              className={`group p-6 rounded-2xl 
-                       ${
-                         friend.amount_owed === 0
-                           ? "bg-gradient-to-br from-gray-800 to-gray-900 opacity-60"
-                           : "bg-gradient-to-br from-dark-surface to-grey-darker hover:from-purple-darker hover:to-dark-surface"
-                       }
-                       border border-gray-medium/20 
-                       ${
-                         friend.amount_owed === 0
-                           ? "border-gray-700"
-                           : "hover:border-purple-light/30"
-                       }
-                       transition-all duration-300 transform 
-                       ${friend.amount_owed === 0 ? "" : "hover:scale-[1.01]"}
-                       shadow-lg hover:shadow-purple/20`}
+              className={`group p-6 rounded-2xl bg-background-surface hover:bg-background-elevated transition-all
+                       ${friend.amount_owed === 0 ? "opacity-60" : ""}`}
             >
               {/* Friend Header */}
               <div className="flex justify-between items-center">
                 <div className="flex items-center flex-1">
                   <UserIcon
                     user={{ name: friend.friend_name }}
-                    className={`w-14 h-14 shadow-lg ${
+                    className={`w-12 h-12 ${
                       friend.amount_owed === 0 ? "opacity-50" : ""
                     }`}
                   />
-                  <div className="ml-5 flex-1">
+                  <div className="ml-4 flex-1">
                     <p
-                      className={`text-xl font-bold ${
+                      className={`text-lg font-semibold ${
                         friend.amount_owed === 0
-                          ? "text-gray-500"
-                          : "text-white group-hover:text-purple-light-200"
-                      } transition-colors duration-300`}
+                          ? "text-text-muted"
+                          : "text-text-primary group-hover:text-primary"
+                      } transition-colors`}
                     >
                       {friend.friend_name}
                     </p>
                     <p
                       className={`text-sm font-medium mt-1 ${
                         friend.amount_owed === 0
-                          ? "text-gray-600" // More muted color for settled
+                          ? "text-text-muted"
                           : friend.is_debtor
-                          ? "text-red-400 group-hover:text-red-300"
-                          : "text-teal-refresh group-hover:text-teal"
-                      } transition-colors duration-300`}
+                          ? "text-error"
+                          : "text-success"
+                      } transition-colors`}
                     >
                       {friend.amount_owed === 0
                         ? "Settled Up ✓"
@@ -149,13 +135,13 @@ const Friends = () => {
 
                 {/* Amount */}
                 <div
-                  className={`text-2xl font-bold ${
+                  className={`text-xl font-bold ${
                     friend.amount_owed === 0
-                      ? "text-gray-600" // More muted color for settled
+                      ? "text-text-muted"
                       : friend.is_debtor
-                      ? "text-red-400 group-hover:text-red-300"
-                      : "text-teal-refresh group-hover:text-teal"
-                  } transition-colors duration-300`}
+                      ? "text-error"
+                      : "text-success"
+                  } transition-colors`}
                 >
                   {friend.amount_owed === 0
                     ? "Settled"
@@ -169,31 +155,30 @@ const Friends = () => {
               </div>
 
               {/* Groups List - Only show if there's a non-zero amount */}
-              {friend.amount_owed !== 0 && (
-                <div className="mt-6 pl-16">
-                  <p className="text-sm font-semibold text-purple-light mb-3">
+              {friend.amount_owed !== 0 && friend.groups && friend.groups.length > 0 && (
+                <div className="mt-4 pl-16">
+                  <p className="text-sm font-semibold text-primary mb-2">
                     Groups
                   </p>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {friend.groups.map((group) => (
                       <div
                         key={group.group_id}
                         className="flex items-center justify-between p-3 rounded-xl
-                                 bg-dark/40 hover:bg-purple/10 
-                                 border border-transparent hover:border-purple/20
-                                 transition-all duration-300"
+                                 bg-background-elevated hover:bg-border
+                                 transition-all"
                       >
-                        <span className="text-sm font-medium text-gray">
+                        <span className="text-sm font-medium text-text-secondary">
                           {group.group_name}
                         </span>
-                        <div className="flex items-center">
-                          <span className="text-sm text-gray-medium mr-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-text-muted">
                             {group.debt_summary}
                           </span>
                           <ChevronRight
                             size={18}
-                            className="text-gray-medium group-hover:text-purple-light 
-                                     transition-colors duration-300"
+                            className="text-text-muted group-hover:text-primary
+                                     transition-colors"
                           />
                         </div>
                       </div>
@@ -204,27 +189,24 @@ const Friends = () => {
             </div>
           ))
         ) : (
-          <div className="py-16 text-center">
-            <p className="text-gray-medium text-xl font-medium">
-              No friends expenses to display
-            </p>
-          </div>
+          <EmptyState
+            icon={UserCheck}
+            title="No friends yet"
+            description="Add friends to start tracking shared expenses."
+            action={() => setIsModalOpen(true)}
+            actionLabel="Add Friend"
+          />
         )}
       </div>
 
       {/* Overall Summary */}
-      <div
-        className="mt-10 p-8 bg-gradient-to-r from-purple/20 to-purple-light/10 
-                   rounded-2xl border border-purple-light/30
-                   transform hover:scale-[1.01] transition-transform duration-300"
-      >
-        <h3
-          className="text-center text-xl font-semibold bg-gradient-to-r 
-                     from-purple-light to-purple-light-200 bg-clip-text text-transparent"
-        >
-          {overallMessage}
-        </h3>
-      </div>
+      {friendsSummary.length > 0 && (
+        <div className="p-6 bg-background-surface rounded-2xl border border-border">
+          <h3 className="text-center text-lg font-semibold text-primary">
+            {overallMessage}
+          </h3>
+        </div>
+      )}
 
       <FriendAddModal
         isOpen={isModalOpen}

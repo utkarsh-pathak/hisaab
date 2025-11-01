@@ -12,7 +12,7 @@ const GroupIcon = ({ name, imageUrl, size = 50, hasUpdates = false }) => {
 
   return (
     <div
-      className="relative flex items-center justify-center rounded-full bg-purple-600 text-white font-bold"
+      className="relative flex items-center justify-center rounded-full bg-primary text-white font-bold"
       style={{
         width: size,
         height: size,
@@ -29,7 +29,7 @@ const GroupIcon = ({ name, imageUrl, size = 50, hasUpdates = false }) => {
       {/* Badge for updates */}
       {hasUpdates && (
         <span
-          className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"
+          className="absolute top-0 right-0 w-3 h-3 bg-error rounded-full border-2 border-background-elevated"
           style={{ transform: "translate(25%, -25%)" }}
         ></span>
       )}

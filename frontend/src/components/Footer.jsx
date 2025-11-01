@@ -1,24 +1,27 @@
 import React from "react";
+import { IndianRupee } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#8A2BE2] p-4 w-full text-center">
-      <p className="text-white">
-        © 2025{" "}
-        <span className="text-2xl font-extrabold text-white flex justify-center items-center space-x-1">
-          <span className="relative">
-            <span className="absolute -top-1 left-0 text-lg font-medium text-[#FFD700]">
-              ₹
-            </span>
-            <span className="ml-5">H</span>
-          </span>
-          <span className="text-[#FFD700]">i</span>
-          <span>s</span>
-          <span className="text-[#FFD700]">a</span>
-          <span>a</span>
-          <span className="text-[#FFD700]">b</span>
-        </span>
-      </p>
+    <footer className="bg-background-surface border-t border-border p-6 w-full text-center mt-auto">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="p-1.5 rounded-lg bg-primary/20">
+            <IndianRupee className="w-4 h-4 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold text-text-primary">
+            <span className="text-primary">H</span>
+            <span className="text-accent">i</span>
+            <span>s</span>
+            <span className="text-primary">a</span>
+            <span>a</span>
+            <span className="text-accent">b</span>
+          </h2>
+        </div>
+        <p className="text-sm text-text-muted">
+          © 2025 Hisaab. Track expenses with ease.
+        </p>
+      </div>
     </footer>
   );
 };

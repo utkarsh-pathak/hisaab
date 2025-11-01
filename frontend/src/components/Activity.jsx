@@ -3,6 +3,8 @@ import axios from "axios";
 import ActivityList from "./ActivityList";
 import Snackbar from "./Snackbar";
 import Loader from "./Loader";
+import { EmptyState } from "./ui/empty-state";
+import { Activity as ActivityIcon } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -35,24 +37,24 @@ const Activity = ({ userId }) => {
   }, [userId]);
 
   return (
-    <div className="relative">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-text-primary">Activity</h2>
+      </div>
+
       {isLoading ? (
-        <Loader size="lg" className="mt-10" />
+        <div className="flex justify-center py-12">
+          <Loader size="lg" />
+        </div>
+      ) : activitiesData.length > 0 ? (
+        <ActivityList activities={activitiesData} />
       ) : (
-        <>
-          {activitiesData.length > 0 ? (
-            <ActivityList activities={activitiesData} />
-          ) : (
-            <div className="flex flex-col items-center justify-center mt-10 p-6 bg-dark-surface rounded-lg shadow-lg text-center">
-              <p className="text-gray-400 text-xl font-semibold mb-2">
-                No activities found
-              </p>
-              <p className="text-gray-500 text-base mb-4">
-                Add an expense or perform an action to see recent activity here.
-              </p>
-            </div>
-          )}
-        </>
+        <EmptyState
+          icon={ActivityIcon}
+          title="No activity yet"
+          description="Your recent activities and expenses will appear here."
+        />
       )}
 
       {showSnackbar && (

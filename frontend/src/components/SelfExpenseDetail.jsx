@@ -1,10 +1,15 @@
 import React, { useState } from "react";
-import { PenLine, Trash2, ArrowLeft } from "lucide-react";
+import { PenLine, Trash2, ChevronLeft, Calendar } from "lucide-react";
 import Snackbar from "./Snackbar";
 import SelfEditExpenseModal from "./SelfEditExpenseModal";
 import axios from "axios";
 import DeleteExpenseModal from "./DeleteExpenseModal";
-import Loader from "./Loader"; // Import Loader
+import Loader from "./Loader";
+import { GlassCard } from "./ui/glass-card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Separator } from "./ui/separator";
+import { cn } from "@/lib/utils";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -84,56 +89,94 @@ const SelfExpenseDetail = ({ expense, onBack, onSave, userId }) => {
   };
 
   return (
-    <div className="bg-dark-surface p-8 rounded-2xl shadow-lg max-w-2xl mx-auto text-gray">
-      {/* Back Button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-gray-medium hover:text-purple-light transition-colors duration-200 mb-6 group"
-      >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-        <span>Back to Tag</span>
-      </button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={onBack}
+            variant="ghost"
+            size="icon"
+            className="tap-target"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
+            Expense Details
+          </h2>
+        </div>
+        {!isLoading && (
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleEditClick}
+              variant="ghost"
+              size="icon"
+              className="tap-target hover:bg-primary/10 hover:text-primary"
+            >
+              <PenLine className="w-5 h-5" />
+            </Button>
+            <Button
+              onClick={handleDeleteClick}
+              variant="ghost"
+              size="icon"
+              className="tap-target hover:bg-error/10 hover:text-error"
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
+      </div>
 
       {/* Loader during delete operation */}
       {isLoading ? (
-        <Loader size="lg" className="text-purple-light my-10" />
+        <div className="flex justify-center py-12">
+          <Loader size="lg" />
+        </div>
       ) : (
-        <>
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-light to-purple bg-clip-text text-transparent">
-              Expense Details
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleEditClick}
-                className="p-2 rounded-full hover:bg-purple/10 transition-colors duration-200"
-                title="Edit Expense"
-              >
-                <PenLine className="w-5 h-5 text-purple-light" />
-              </button>
-              <button
-                onClick={handleDeleteClick}
-                className="p-2 rounded-full hover:bg-red-600/10 transition-colors duration-200"
-                title="Delete Expense"
-              >
-                <Trash2 className="w-5 h-5 text-red-500" />
-              </button>
-            </div>
-          </div>
-
-          <div className="mb-8 border-b border-gray-dark pb-6 space-y-4">
-            <div className="space-y-2">
-              <p className="text-3xl font-bold text-purple-light tracking-tight">
-                ₹{amount?.toFixed(2) || "0.00"}
-              </p>
-              <p className="text-xl text-gray-medium">{description}</p>
-            </div>
-
-            <p className="text-sm text-gray-medium">
-              Created on {new Date(created_at).toLocaleDateString()}
+        <div className="space-y-3">
+          {/* Amount Card */}
+          <div className="p-4 sm:p-5 rounded-xl bg-background-surface border border-border">
+            <p className="text-xs sm:text-sm text-text-muted font-medium mb-2">
+              Amount
+            </p>
+            <p className="text-3xl sm:text-4xl font-bold text-primary">
+              ₹{amount?.toFixed(2) || "0.00"}
             </p>
           </div>
-        </>
+
+          {/* Description Card */}
+          <div className="p-4 sm:p-5 rounded-xl bg-background-surface border border-border">
+            <p className="text-xs sm:text-sm text-text-muted font-medium mb-2">
+              Description
+            </p>
+            <p className="text-sm sm:text-base text-text-primary font-medium">
+              {description || "No description"}
+            </p>
+          </div>
+
+          {/* Date Card */}
+          <div className="p-4 sm:p-5 rounded-xl bg-background-surface border border-border">
+            <p className="text-xs sm:text-sm text-text-muted font-medium mb-2">
+              Created On
+            </p>
+            <div className="flex items-center gap-2 text-text-primary mb-1">
+              <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="text-sm font-medium">{new Date(created_at).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+              })}</span>
+            </div>
+            <p className="text-xs text-text-muted ml-6">
+              {new Date(created_at).toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
+              })}
+            </p>
+          </div>
+        </div>
       )}
 
       {/* Snackbar for notifications */}

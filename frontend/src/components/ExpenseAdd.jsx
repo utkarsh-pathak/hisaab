@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-
 import { useSelector, useDispatch } from "react-redux";
 import { setExpenseCreated, expenseCreatedForFriend } from "../store";
-
 import ParticipantSelect from "./FriendSelect";
 import CustomSplitModal from "./CustomSplitModal";
 import Snackbar from "./Snackbar";
 import GroupIcon from "./GroupIcon";
 import { currencies, splitTypes } from "./config";
 import Loader from "./Loader";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -190,32 +191,26 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
 
   return (
     <>
-      {loading && <Loader size="md" />} {/* Show loader when loading */}
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-        <div className="bg-dark-surface w-full max-w-lg rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
-          {/* Header - Fixed */}
-          <div className="p-6 border-b border-gray-medium/20 flex-shrink-0">
-            <h2 className="text-2xl font-semibold bg-gradient-to-r from-purple-light to-purple bg-clip-text text-transparent">
-              Add Expense
-            </h2>
-          </div>
+      {loading && <Loader size="md" />}
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-lg max-h-[95vh] sm:max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-4 sm:px-6 py-4">
+            <DialogTitle>Add Expense</DialogTitle>
+          </DialogHeader>
 
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <div className="p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6">
+            <div className="space-y-4 pb-4 sm:pb-6">
               {/* Description Input */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray/80">
+                <label className="text-sm font-medium text-text-secondary">
                   Description
                 </label>
-                <input
+                <Input
                   type="text"
                   ref={descriptionRef}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 bg-dark border border-gray-medium/30 rounded-lg text-white 
-                           transition-all duration-200 focus:border-purple-light focus:ring-2 focus:ring-purple/20
-                           placeholder:text-gray-medium"
                   placeholder="What's this expense for?"
                 />
               </div>
@@ -223,15 +218,14 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
               {/* Amount and Currency Row */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray/80">
+                  <label className="text-sm font-medium text-text-secondary">
                     Currency
                   </label>
                   <select
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
-                    className="w-full px-4 py-3 bg-dark border border-gray-medium/30 rounded-lg text-white
-                             appearance-none transition-all duration-200 focus:border-purple-light 
-                             focus:ring-2 focus:ring-purple/20"
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-background-elevated text-text-primary
+                             appearance-none transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   >
                     {currencies.map((curr) => (
                       <option key={curr.value} value={curr.value}>
@@ -241,33 +235,32 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
                   </select>
                 </div>
                 <div className="col-span-2 space-y-2">
-                  <label className="text-sm font-medium text-gray/80">
+                  <label className="text-sm font-medium text-text-secondary">
                     Amount
                   </label>
-                  <input
+                  <Input
                     type="number"
                     ref={amountRef}
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full px-4 py-3 bg-dark border border-gray-medium/30 rounded-lg text-white
-                             transition-all duration-200 focus:border-purple-light focus:ring-2 
-                             focus:ring-purple/20 placeholder:text-gray-medium"
                     placeholder="0.00"
+                    step="0.01"
                   />
                 </div>
               </div>
 
               {/* Group Selection */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray/80">
+                <label className="text-sm font-medium text-text-secondary">
                   Select Group
                 </label>
                 <div className="relative">
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full px-4 py-3 bg-dark border border-gray-medium/30 rounded-lg
-                             flex items-center space-x-3 text-white transition-all duration-200
-                             hover:bg-purple/10 hover:border-purple-light/50"
+                    type="button"
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-background-elevated
+                             flex items-center space-x-3 text-text-primary transition-all
+                             hover:bg-background-elevated hover:border-primary"
                   >
                     <GroupIcon
                       name={
@@ -278,29 +271,30 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
                       imageUrl={selectedGroup?.imageUrl || ""}
                       size={24}
                     />
-                    <span className="flex-1 text-left">
+                    <span className="flex-1 text-left text-sm">
                       {selectedGroup?.group_name || "No Group Selected"}
                     </span>
                   </button>
 
                   {isDropdownOpen && (
                     <div
-                      className="absolute w-full mt-2 bg-dark-surface border border-gray-medium/30
-                                rounded-lg shadow-lg overflow-hidden z-20 max-h-48 overflow-y-auto"
+                      className="absolute w-full mt-2 bg-background-surface border border-border
+                                rounded-xl shadow-lg overflow-hidden z-20 max-h-48 overflow-y-auto custom-scrollbar"
                     >
                       {groupList.map((grp) => (
                         <button
                           key={grp.id}
                           onClick={() => handleGroupSelect(grp)}
-                          className="w-full px-4 py-3 flex items-center space-x-3 text-gray
-                                   transition-all duration-200 hover:bg-purple/10"
+                          type="button"
+                          className="w-full px-4 py-3 flex items-center space-x-3 text-text-primary
+                                   transition-all hover:bg-background-elevated"
                         >
                           <GroupIcon
                             name={grp.name || grp.group_name}
                             imageUrl={grp.imageUrl}
                             size={24}
                           />
-                          <span>{grp.name || grp.group_name}</span>
+                          <span className="text-sm">{grp.name || grp.group_name}</span>
                         </button>
                       ))}
                     </div>
@@ -310,7 +304,7 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
 
               {/* Participant Selection */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray/80">
+                <label className="text-sm font-medium text-text-secondary">
                   Select Participants
                 </label>
                 <ParticipantSelect
@@ -324,15 +318,14 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
 
               {/* Split Type Selection */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray/80">
+                <label className="text-sm font-medium text-text-secondary">
                   Split Type
                 </label>
                 <select
                   value={splitType}
                   onChange={(e) => handleSplitTypeChange(e.target.value)}
-                  className="w-full px-4 py-3 bg-dark border border-gray-medium/30 rounded-lg
-                           text-white appearance-none transition-all duration-200
-                           focus:border-purple-light focus:ring-2 focus:ring-purple/20"
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-background-elevated text-text-primary
+                           appearance-none transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 >
                   {splitTypes.map((type) => (
                     <option key={type.value} value={type.value}>
@@ -345,27 +338,24 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
           </div>
 
           {/* Footer - Fixed */}
-          <div className="p-6 border-t border-gray-medium/20 flex justify-end space-x-4 flex-shrink-0 bg-dark-surface">
-            <button
+          <DialogFooter className="px-4 sm:px-6 py-4 gap-2">
+            <Button
               onClick={onClose}
-              className="px-6 py-2 rounded-lg text-gray hover:text-white
-                     transition-all duration-200 hover:bg-purple/10"
+              variant="ghost"
+              className="flex-1 sm:flex-initial"
             >
               Cancel
-            </button>
-            <button
-              onClick={() => handleConfirmWithLoader(location)} // Use the new function with loader
+            </Button>
+            <Button
+              onClick={() => handleConfirmWithLoader(location)}
               disabled={!description || parseFloat(amount) <= 0}
-              className="px-6 py-2 bg-purple text-white rounded-lg
-                     transition-all duration-200 hover:bg-purple-light
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     disabled:hover:bg-purple"
+              className="flex-1 sm:flex-initial"
             >
               Confirm
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {showCustomSplitModal && (
         <CustomSplitModal
           participants={selectedParticipants}

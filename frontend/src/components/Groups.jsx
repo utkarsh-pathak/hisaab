@@ -9,7 +9,9 @@ import GroupDetail from "./GroupDetail";
 import GroupAddModal from "./GroupAddModal";
 import Snackbar from "./Snackbar";
 import Loader from "./Loader";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
+import { Button } from "./ui/button";
+import { EmptyState } from "./ui/empty-state";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -106,49 +108,35 @@ const Groups = ({ friends, userId }) => {
   }
 
   return (
-    <div className="relative">
-      <div className="fixed top-20 right-6 md:right-8 z-10">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="group flex items-center bg-purple hover:bg-purple-darker text-white px-6 py-3 rounded-full shadow-lg hover:shadow-lg-hover transition-all duration-200 transform hover:-translate-y-0.5"
-        >
-          <Plus className="w-5 h-5 mr-2 transform group-hover:rotate-90 transition-transform duration-200" />
-          <span className="font-medium">Add Group</span>
-        </button>
+    <div className="relative space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-text-primary">Groups</h2>
+        <Button onClick={() => setIsModalOpen(true)} size="default">
+          <Plus className="w-4 h-4" />
+          Add Group
+        </Button>
       </div>
-
-      <GroupList groups={groupsData} onGroupSelect={handleGroupSelect} />
 
       {isLoading ? (
         <Loader size="lg" className="mt-10" />
+      ) : groupsData.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No groups found"
+          description="Create a group to start tracking shared expenses with friends and family."
+          action={() => setIsModalOpen(true)}
+          actionLabel="Create Group"
+        />
       ) : (
-        <>
-          {/* No Groups Message */}
-          {!isLoading && groupsData.length === 0 && (
-            <div className="flex flex-col items-center justify-center mt-10 p-6 bg-dark-surface rounded-lg shadow-lg text-center">
-              <p className="text-gray-400 text-xl font-semibold mb-2">
-                No groups found
-              </p>
-              <p className="text-gray-500 text-base mb-4">
-                Create a group or add an expense to see your activity here.
-              </p>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-purple text-white px-5 py-2 rounded-full hover:bg-purple-darker transition-all duration-200"
-              >
-                Add a Group
-              </button>
-            </div>
-          )}
+        <GroupList groups={groupsData} onGroupSelect={handleGroupSelect} />
+      )}
 
-          {isModalOpen && (
-            <GroupAddModal
-              onClose={() => setIsModalOpen(false)}
-              onSave={handleAddGroup}
-              friendsList={friends}
-            />
-          )}
-        </>
+      {isModalOpen && (
+        <GroupAddModal
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleAddGroup}
+          friendsList={friends}
+        />
       )}
 
       {showSnackbar && (

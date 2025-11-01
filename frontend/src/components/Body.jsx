@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Plus, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import Groups from "./Groups";
 import Friends from "./Friends";
 import Activity from "./Activity";
@@ -8,6 +8,7 @@ import Account from "./Account";
 import AddExpenseModal from "./ExpenseAdd";
 import Self from "./Self";
 import TagExpenseModal from "./TagExpenseModal";
+import { FloatingActionButton } from "./ui/floating-action-button";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -129,21 +130,21 @@ const Body = ({ activeTab, user }) => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex flex-col items-center justify-center h-full space-y-4">
-          <Loader className="w-8 h-8 text-purple animate-spin" />
-          <p className="text-gray-400 font-medium">Loading your data...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+          <Loader className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-text-secondary font-medium">Loading your data...</p>
         </div>
       );
     }
 
     if (error) {
       return (
-        <div className="flex flex-col items-center justify-center h-full space-y-4">
-          <div className="p-4 bg-dark-surface rounded-lg text-center">
-            <p className="text-red-500 font-medium mb-2">{error}</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+          <div className="p-6 bg-background-elevated rounded-2xl border border-border text-center max-w-md">
+            <p className="text-error font-medium mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="text-purple-light hover:text-purple transition-colors duration-200"
+              className="text-primary hover:text-primary-light transition-colors duration-200 font-medium"
             >
               Retry
             </button>
@@ -154,8 +155,8 @@ const Body = ({ activeTab, user }) => {
 
     return (
       <>
-        <div className="flex-grow w-full">
-          <div className="w-full px-4 py-6">
+        <div className="flex-grow w-full min-h-screen bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
             {activeTab === "Groups" && (
               <Groups groups={groups} friends={friends} userId={userId} />
             )}
@@ -169,35 +170,18 @@ const Body = ({ activeTab, user }) => {
         </div>
 
         {/* Floating Action Button */}
-        <div className="fixed bottom-6 right-6 md:right-8">
-          <button
-            onClick={() => setShowModal(true)}
-            disabled={
-              (activeContext === "Tags" && !selectedTag) ||
-              activeContext === "Self"
-            } // Disable in Tag list view and Self view
-            className={`group flex items-center ${
-              (activeContext === "Tags" && !selectedTag) ||
-              activeContext === "Self"
-                ? "bg-gray-400 cursor-not-allowed" // Disabled state styling
-                : "bg-purple hover:bg-purple-darker text-white" // Enabled state styling
-            } px-6 py-3 rounded-full shadow-lg hover:shadow-lg-hover transition-all duration-200 transform hover:-translate-y-0.5`}
-          >
-            <Plus
-              className={`w-5 h-5 mr-2 transform transition-transform duration-200 ${
-                (activeContext === "Tags" && !selectedTag) ||
-                activeContext === "Self"
-                  ? "group-hover:rotate-0" // No rotation for disabled
-                  : "group-hover:rotate-90" // Rotate when enabled
-              }`}
-            />
-            <span className="font-medium">Add Expense</span>
-          </button>
-        </div>
+        <FloatingActionButton
+          onClick={() => setShowModal(true)}
+          disabled={
+            (activeContext === "Tags" && !selectedTag) ||
+            activeContext === "Self"
+          }
+          label="Add Expense"
+        />
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="w-full max-w-2xl transform transition-all duration-200 scale-100">
               {renderModal()}
             </div>

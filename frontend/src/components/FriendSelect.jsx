@@ -77,50 +77,48 @@ const ParticipantSelect = ({
   };
 
   return (
-    <div className="relative space-y-6 p-6 bg-dark-surface rounded-lg shadow-md">
+    <div className="relative space-y-4">
       {/* Who Paid Dropdown */}
       {showPayerDropdown && (
         <div>
-          <p className="text-gray mb-2 font-medium">Who Paid:</p>
+          <p className="text-text-secondary mb-2 text-sm font-medium">Who Paid</p>
           <div className="relative">
             <button
               onClick={() => setPayerDropdownOpen(!payerDropdownOpen)}
-              className="w-full p-3 bg-button-purple text-white rounded-lg hover:bg-button-purple-hover transition-colors duration-200 flex items-center justify-between shadow-sm hover:shadow-lg-hover"
+              className="w-full min-h-[44px] px-3 sm:px-4 py-2 bg-background-elevated text-text-primary rounded-xl border border-border hover:border-primary transition-all flex items-center justify-between tap-target"
             >
-              <div className="flex items-center">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 {payer && <UserIcon user={payer} />}
-                <span className="ml-2">
+                <span className="text-sm truncate">
                   {payer ? getDisplayName(payer) : "Select Payer"}
                 </span>
               </div>
               {payerDropdownOpen ? (
-                <ChevronUpIcon className="w-5 h-5 ml-2 text-purple-light" />
+                <ChevronUpIcon className="w-5 h-5 text-text-muted flex-shrink-0 ml-2" />
               ) : (
-                <ChevronDownIcon className="w-5 h-5 ml-2 text-purple-light" />
+                <ChevronDownIcon className="w-5 h-5 text-text-muted flex-shrink-0 ml-2" />
               )}
             </button>
             {payerDropdownOpen && (
-              <div className="absolute w-full bg-dark-surface border border-gray-medium rounded-lg mt-2 max-h-60 overflow-y-auto shadow-lg z-20">
-                <div className="py-1">
-                  {filteredFriends.length > 0 ? (
-                    filteredFriends.map((participant) => (
-                      <div
-                        key={participant.id}
-                        className="flex items-center p-3 hover:bg-purple-darker-200 cursor-pointer transition-colors duration-200"
-                        onClick={() => handlePayerSelection(participant)}
-                      >
-                        <UserIcon user={participant} />
-                        <span className="ml-2 text-gray">
-                          {getDisplayName(participant)}
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-3 text-gray-medium">
-                      {noParticipantsMessage}
+              <div className="absolute w-full bg-background-surface border border-border rounded-xl mt-2 max-h-64 overflow-y-auto custom-scrollbar shadow-lg z-20">
+                {filteredFriends.length > 0 ? (
+                  filteredFriends.map((participant) => (
+                    <div
+                      key={participant.id}
+                      className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-background-elevated cursor-pointer transition-colors tap-target active:bg-background-elevated"
+                      onClick={() => handlePayerSelection(participant)}
+                    >
+                      <UserIcon user={participant} />
+                      <span className="text-sm text-text-primary truncate flex-1">
+                        {getDisplayName(participant)}
+                      </span>
                     </div>
-                  )}
-                </div>
+                  ))
+                ) : (
+                  <div className="px-3 sm:px-4 py-3 text-sm text-text-muted">
+                    {noParticipantsMessage}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -129,6 +127,7 @@ const ParticipantSelect = ({
 
       {/* Participants Search and Dropdown */}
       <div className="relative">
+        <p className="text-text-secondary mb-2 text-sm font-medium">Select Participants</p>
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <input
@@ -136,21 +135,23 @@ const ParticipantSelect = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={() => setParticipantsDropdownOpen(true)}
-              className="w-full border border-gray-medium bg-dark px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-light focus:border-transparent outline-none text-gray transition-all duration-200"
+              className="w-full min-h-[44px] border border-border bg-background-elevated px-3 sm:px-4 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none text-text-primary placeholder-text-muted transition-all text-sm"
               placeholder={placeholderText}
             />
             {searchTerm && (
-              <XCircleIcon
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-medium hover:text-gray cursor-pointer transition-colors duration-200"
+              <button
                 onClick={() => setSearchTerm("")}
-              />
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 tap-target p-1"
+              >
+                <XCircleIcon className="w-5 h-5 text-text-muted hover:text-text-secondary transition-colors" />
+              </button>
             )}
           </div>
           <button
             onClick={() =>
               setParticipantsDropdownOpen(!participantsDropdownOpen)
             }
-            className="p-3 bg-button-purple text-white rounded-lg hover:bg-button-purple-hover transition-colors duration-200 shadow-sm hover:shadow-lg-hover"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-primary/20 text-primary rounded-xl hover:bg-primary/30 transition-colors border border-primary/20 tap-target"
           >
             {participantsDropdownOpen ? (
               <ChevronUpIcon className="w-5 h-5" />
@@ -160,13 +161,13 @@ const ParticipantSelect = ({
           </button>
         </div>
         {participantsDropdownOpen && (
-          <div className="absolute w-full bg-dark-surface border border-gray-medium rounded-lg mt-2 shadow-lg z-10">
-            <div className="max-h-60 overflow-y-auto">
+          <div className="absolute w-full bg-background-surface border border-border rounded-xl mt-2 shadow-lg z-10">
+            <div className="max-h-64 overflow-y-auto custom-scrollbar">
               {filteredFriends.length > 0 ? (
                 filteredFriends.map((participant) => (
                   <div
                     key={participant.id}
-                    className="flex items-center p-3 hover:bg-purple-darker-200 cursor-pointer transition-colors duration-200"
+                    className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-background-elevated cursor-pointer transition-colors tap-target active:bg-background-elevated"
                     onClick={() => toggleParticipantSelection(participant)}
                   >
                     <input
@@ -175,16 +176,16 @@ const ParticipantSelect = ({
                         (selected) => selected.id === participant.id
                       )}
                       onChange={() => toggleParticipantSelection(participant)}
-                      className="form-checkbox h-5 w-5 text-purple-light border-gray-medium rounded transition-colors duration-200 mr-3"
+                      className="form-checkbox h-5 w-5 text-primary border-border rounded transition-colors flex-shrink-0"
                     />
                     <UserIcon user={participant} />
-                    <span className="ml-2 text-gray">
+                    <span className="text-sm text-text-primary truncate flex-1">
                       {getDisplayName(participant)}
                     </span>
                   </div>
                 ))
               ) : (
-                <div className="p-3 text-gray-medium">
+                <div className="px-3 sm:px-4 py-3 text-sm text-text-muted">
                   {noParticipantsMessage}
                 </div>
               )}
@@ -195,16 +196,18 @@ const ParticipantSelect = ({
 
       {/* Selected Participants Display */}
       {selectedParticipants.length > 0 && (
-        <div className="mt-4 p-4 bg-dark rounded-lg border border-gray-medium">
-          <p className="text-gray mb-3 font-medium">Selected Participants:</p>
+        <div className="p-3 sm:p-4 bg-background-elevated rounded-xl border border-border">
+          <p className="text-text-secondary mb-2 text-sm font-medium">
+            Selected ({selectedParticipants.length})
+          </p>
           <div className="flex flex-wrap gap-2">
             {selectedParticipants.map((participant) => (
               <div
                 key={participant.id}
-                className="flex items-center gap-2 bg-purple px-3 py-2 rounded-lg text-white shadow-sm hover:shadow-lg-hover transition-all duration-200"
+                className="flex items-center gap-1.5 bg-primary/20 px-2.5 py-1.5 rounded-lg text-primary border border-primary/20 transition-all"
               >
                 <UserIcon user={participant} />
-                <span>{getDisplayName(participant)}</span>
+                <span className="text-xs sm:text-sm font-medium">{getDisplayName(participant)}</span>
               </div>
             ))}
           </div>

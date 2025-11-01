@@ -1,58 +1,77 @@
 import React from "react";
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, PlusCircle, Users, Tag as TagIcon } from "lucide-react";
+import { Badge } from "./ui/badge";
 
 const ActivityCard = ({ activity }) => {
   const formatDate = (timestamp) => {
-    // Create a new Date object from the UTC timestamp string
     const date = new Date(timestamp);
-
-    // Check if the date is valid
     if (isNaN(date.getTime())) {
       console.error("Invalid timestamp:", timestamp);
-      return "Invalid date"; // Fallback for invalid date
+      return "Invalid date";
     }
-
-    // Use toLocaleString to convert to local timezone with formatting
-    return date.toLocaleString("en-US", {
-      year: "numeric", // Full year (e.g., 2024)
-      month: "short", // Abbreviated month (e.g., Nov)
-      day: "numeric", // Day of the month (e.g., 6)
-      hour: "numeric", // Hour (e.g., 3)
-      minute: "numeric", // Minute (e.g., 15)
-      hour12: true, // 12-hour format (AM/PM)
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      return "";
+    }
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  // Determine icon based on activity type
+  const getActivityIcon = () => {
+    if (activity.activity_type === "Group Created") {
+      return <Users className="w-5 h-5 text-primary" />;
+    } else if (activity.activity_type === "Expense Added") {
+      return <PlusCircle className="w-5 h-5 text-success" />;
+    } else if (activity.activity_type === "Tag Created") {
+      return <TagIcon className="w-5 h-5 text-accent" />;
+    }
+    return <Clock className="w-5 h-5 text-primary" />;
+  };
+
   return (
-    <div
-      className="relative overflow-hidden bg-gradient-to-br from-dark-surface to-dark/60 
-    backdrop-blur-md rounded-2xl
-    transition-all duration-300 ease-in-out
-    border border-gray-800/40 hover:border-gray-700/40
-    group cursor-pointer shadow-xl hover:shadow-2xl 
-    hover:-translate-y-1 p-4"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Clock className="w-5 h-5 text-purple-300" />
-          <div className="flex flex-col">
-            <h2 className="text-lg font-semibold text-white">
+    <div className="p-4 sm:p-5 rounded-2xl bg-background-surface hover:bg-background-elevated transition-all group border border-transparent hover:border-primary/20">
+      <div className="flex items-start justify-between gap-3 sm:gap-4">
+        {/* Icon and Content */}
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <div className="p-2.5 bg-primary/20 rounded-xl flex-shrink-0 mt-0.5">
+            {getActivityIcon()}
+          </div>
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <h3 className="text-base sm:text-lg font-semibold text-text-primary group-hover:text-primary transition-colors">
               {activity.action}
-            </h2>
-            <span className="text-sm text-gray-400">
-              {formatDate(activity.timestamp)}
-            </span>
+            </h3>
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-text-muted">
+              <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{formatDate(activity.timestamp)}</span>
+              <span>•</span>
+              <span>{formatTime(activity.timestamp)}</span>
+            </div>
           </div>
         </div>
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
-            activity.activity_type === "Group Created"
-              ? "bg-green-500/15 text-green-300"
-              : "bg-amber-500/15 text-amber-300"
-          }`}
+
+        {/* Activity Type Badge */}
+        <Badge
+          variant={
+            activity.activity_type === "Group Created" ? "success" :
+            activity.activity_type === "Expense Added" ? "default" :
+            "accent"
+          }
+          className="flex-shrink-0"
         >
           {activity.activity_type}
-        </span>
+        </Badge>
       </div>
     </div>
   );
@@ -60,7 +79,7 @@ const ActivityCard = ({ activity }) => {
 
 const ActivityList = ({ activities }) => {
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-dark rounded-2xl shadow-xl space-y-4">
+    <div className="space-y-3">
       {activities.map((activity) => (
         <ActivityCard key={activity.id} activity={activity} />
       ))}

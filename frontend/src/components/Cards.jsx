@@ -1,21 +1,13 @@
 import React from "react";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 const Card = ({ children, className, ...props }) => (
   <div
-    className={`relative overflow-hidden bg-gradient-to-br from-dark-surface to-dark/60 
-    backdrop-blur-md rounded-2xl
-    transition-all duration-300 ease-in-out
-    border border-gray-800/40 hover:border-gray-700/40
-    group cursor-pointer w-full shadow-xl hover:shadow-2xl 
-    hover:-translate-y-1 ${className}`}
+    className={`p-3.5 rounded-xl bg-background-surface hover:bg-background-elevated
+    transition-all group cursor-pointer w-full border border-transparent hover:border-primary/20 ${className}`}
     {...props}
   >
-    {/* Subtle gradient overlay */}
-    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-dark/10 to-dark/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-    {/* Content */}
-    <div className="relative z-10 p-6 space-y-4">{children}</div>
+    {children}
   </div>
 );
 
@@ -28,22 +20,16 @@ const CardHeader = ({ children, className, ...props }) => (
   </div>
 );
 
-const Badge = ({ children, variant = "purple" }) => {
+const Badge = ({ children, variant = "primary" }) => {
   const variants = {
-    purple: "bg-purple-500/15 text-purple-300 ring-purple-400/20",
-    green: "bg-green-500/15 text-green-300 ring-green-400/20",
-    teal: "bg-teal-500/15 text-teal-300 ring-teal-400/20",
+    primary: "bg-primary/15 text-primary",
+    success: "bg-success/15 text-success",
+    accent: "bg-accent/15 text-accent",
   };
 
   return (
     <span
-      className={`
-      text-sm font-medium px-4 py-1.5 rounded-full
-      ring-1 backdrop-blur-sm
-      transition-all duration-300
-      group-hover:ring-opacity-50
-      ${variants[variant]}
-    `}
+      className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${variants[variant]}`}
     >
       {children}
     </span>
@@ -58,82 +44,67 @@ export const ExpenseCard = ({ item, userId, onClick }) => {
 
   const getLendingInfo = () => {
     if (isUserPayer && !userIsParticipant) {
-      return `You lent ₹${item.amount}`;
+      return { text: `You lent ₹${item.amount}`, variant: "success" };
     } else if (isUserPayer && userIsParticipant) {
       const totalLent = item.participants.reduce(
         (sum, participant) =>
           sum + (participant.id !== userId ? participant.amount_owed : 0),
         0
       );
-      return `You lent ₹${totalLent.toFixed(2)}`;
+      return { text: `You lent ₹${totalLent.toFixed(2)}`, variant: "success" };
     } else if (!isUserPayer && userIsParticipant) {
       const amountOwed =
         item.participants.find((participant) => participant.id === userId)
           ?.amount_owed || 0;
-      return `${item.paid_by.name} lent you ₹${amountOwed.toFixed(2)}`;
+      return { text: `${item.paid_by.name} lent you ₹${amountOwed.toFixed(2)}`, variant: "primary" };
     }
-    return "No participation";
+    return { text: "No participation", variant: "primary" };
   };
+
+  const lendingInfo = getLendingInfo();
 
   return (
     <Card onClick={onClick}>
-      <CardHeader>
-        <div className="flex items-start justify-between w-full">
-          <div className="flex flex-col space-y-2">
-            <h3 className="text-lg font-semibold text-white group-hover:text-purple-200 transition-colors duration-300">
-              {item.description}
-            </h3>
-            <span
-              className={`text-sm font-medium ${
-                isUserPayer ? "text-teal-400" : "text-gray-400"
-              }`}
-            >
-              {isUserPayer ? (
-                <span className="flex items-center gap-2">
-                  You paid
-                  <Badge variant="teal">₹{item.amount}</Badge>
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  {item.paid_by.name} paid
-                  <Badge variant="teal">₹{item.amount}</Badge>
-                </span>
-              )}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Badge variant="purple">{getLendingInfo()}</Badge>
-            <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-gray-300 transition-colors duration-300" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0 space-y-1">
+          <h3 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">
+            {item.description}
+          </h3>
+          <div className="flex items-center gap-2 text-xs text-text-muted">
+            <span>{isUserPayer ? "You paid" : `${item.paid_by.name} paid`}</span>
+            <Badge variant="accent">₹{item.amount}</Badge>
           </div>
         </div>
-      </CardHeader>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Badge variant={lendingInfo.variant}>{lendingInfo.text}</Badge>
+          <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" />
+        </div>
+      </div>
     </Card>
   );
 };
 
 export const SettlementCard = ({ item, userId }) => (
-  <Card className="from-gray-900/80 to-gray-800/80 border-green-800/30 hover:border-green-700/40">
-    <CardHeader>
-      <div className="flex items-start justify-between w-full">
-        <div className="flex flex-col space-y-2">
-          <h3 className="text-lg font-semibold text-white group-hover:text-green-200 transition-colors duration-300">
-            Settlement
-          </h3>
-        </div>
-
-        <div className="flex flex-col items-end space-y-2">
-          <Badge variant="green">
-            {item.creditor_id === userId
-              ? `You received ₹${item.amount}`
-              : `${item.creditor_name} received ₹${item.amount}`}
-          </Badge>
-          <span className="text-gray-400 text-sm font-medium">
-            from {item.debtor_id === userId ? "you" : item.debtor_name}
-          </span>
-        </div>
+  <Card className="border-success/20 hover:border-success/30">
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex-1 min-w-0 space-y-1">
+        <h3 className="text-sm font-semibold text-success">
+          Settlement
+        </h3>
+        <p className="text-xs text-text-muted">
+          from {item.debtor_id === userId ? "you" : item.debtor_name}
+        </p>
       </div>
-    </CardHeader>
+
+      <div className="flex-shrink-0">
+        <Badge variant="success">
+          {item.creditor_id === userId
+            ? `You received ₹${item.amount}`
+            : `${item.creditor_name} received ₹${item.amount}`}
+        </Badge>
+      </div>
+    </div>
   </Card>
 );
 

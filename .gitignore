@@ -19,3 +19,6 @@ backend/.npmrc
 
 # macOS specific
 .DS_Store
+
+# Claude specific
+CLAUDE.md

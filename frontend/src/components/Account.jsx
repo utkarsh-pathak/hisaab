@@ -1,87 +1,139 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { clearUser } from "../store"; // Import the clearUser action
+import { clearUser } from "../store";
 import { useNavigate } from "react-router-dom";
+import { LogOut, User as UserIcon, Settings } from "lucide-react";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog";
 
 const Account = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [showOptions, setShowOptions] = useState(false); // Toggles options visibility
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const toggleOptions = () => {
-    setShowOptions((prev) => !prev); // Toggle options on Account click
-  };
+  const userName = localStorage.getItem("name") || "User";
+  const userEmail = localStorage.getItem("email") || "user@example.com";
+  const userInitials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   const handleLogoutClick = () => {
-    setShowLogoutModal(true); // Open logout modal
-  };
-
-  const handleLogout = () => {
-    dispatch(clearUser());
-    localStorage.removeItem("user_id");
-    navigate("/"); // Navigate to the login screen on logout
+    setShowLogoutModal(true);
   };
 
   const handleConfirmLogout = () => {
-    dispatch(clearUser()); // Clear user data from Redux store
-    setShowLogoutModal(false); // Close the modal
-    handleLogout();
+    dispatch(clearUser());
+    localStorage.removeItem("user_id");
+    setShowLogoutModal(false);
+    navigate("/");
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 className="text-2xl font-semibold mb-4 text-purple-500">Account</h2>
-      <p>Here you can manage your Account.</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-text-primary">Account</h2>
+      </div>
 
-      {/* Account Options Toggle */}
-      <button
-        onClick={toggleOptions}
-        className="mt-4 px-4 py-2 bg-purple-700 text-white font-semibold rounded"
-      >
-        Account Options
-      </button>
-
-      {/* Options Displayed on Account Click */}
-      {showOptions && (
-        <div className="mt-2 space-y-2">
-          <button className="w-full px-4 py-2 bg-purple-500 text-white rounded">
-            Profile
-          </button>
-          <button
-            onClick={handleLogoutClick}
-            className="w-full px-4 py-2 bg-purple-500 text-white rounded"
-          >
-            Logout
-          </button>
-        </div>
-      )}
-
-      {/* Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
-          <div className="bg-black rounded-lg p-6 w-96">
-            <h3 className="text-xl font-semibold mb-4 text-purple-500">
-              Confirm Logout
-            </h3>
-            <p className="text-white">Are you sure you want to log out?</p>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="px-4 py-2 mr-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmLogout}
-                className="px-4 py-2 bg-purple-700 text-white font-semibold rounded hover:bg-purple-600"
-              >
-                Confirm
-              </button>
-            </div>
+      {/* Profile Card */}
+      <div className="p-6 sm:p-8 rounded-2xl bg-background-surface border border-border">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center">
+            <span className="text-2xl font-bold text-primary">{userInitials}</span>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-text-primary">{userName}</h3>
+            <p className="text-sm text-text-muted">{userEmail}</p>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Account Actions */}
+      <div className="space-y-3">
+        <button
+          className="w-full p-5 rounded-2xl bg-background-surface hover:bg-background-elevated transition-all group border border-transparent hover:border-primary/20 text-left"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/20 rounded-xl">
+                <UserIcon className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-text-primary group-hover:text-primary transition-colors">
+                  Profile Settings
+                </h4>
+                <p className="text-sm text-text-muted">Manage your profile information</p>
+              </div>
+            </div>
+          </div>
+        </button>
+
+        <button
+          className="w-full p-5 rounded-2xl bg-background-surface hover:bg-background-elevated transition-all group border border-transparent hover:border-primary/20 text-left"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/20 rounded-xl">
+                <Settings className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-text-primary group-hover:text-primary transition-colors">
+                  App Settings
+                </h4>
+                <p className="text-sm text-text-muted">Customize your app experience</p>
+              </div>
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={handleLogoutClick}
+          className="w-full p-5 rounded-2xl bg-background-surface hover:bg-background-elevated transition-all group border border-transparent hover:border-error/20 text-left"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-error/20 rounded-xl">
+                <LogOut className="w-5 h-5 text-error" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-text-primary group-hover:text-error transition-colors">
+                  Logout
+                </h4>
+                <p className="text-sm text-text-muted">Sign out of your account</p>
+              </div>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* Logout Confirmation Modal */}
+      <Dialog open={showLogoutModal} onOpenChange={setShowLogoutModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Logout</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to log out? You'll need to sign in again to access your account.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setShowLogoutModal(false)}
+              variant="ghost"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmLogout}
+              variant="destructive"
+            >
+              Logout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

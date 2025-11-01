@@ -1,6 +1,9 @@
 import React, { useState, useRef } from "react";
 import Loader from "./Loader";
 import Snackbar from "./Snackbar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -112,66 +115,70 @@ const SelfEditExpenseModal = ({ expense, onClose, onUpdate, userId }) => {
   return (
     <>
       {loading && <Loader size="md" />}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800 rounded-3xl p-8 shadow-lg w-full max-w-md">
-          <h2 className="text-xl font-semibold text-white mb-6">
-            Edit Expense
-          </h2>
-          <div className="space-y-4">
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Expense</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-text-secondary">
                 Description
               </label>
-              <input
+              <Input
                 type="text"
                 ref={descriptionRef}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-sm"
                 placeholder="What's this expense for?"
+                className={!description && descriptionRef.current?.classList.contains('border-red-500') ? 'border-error' : ''}
               />
             </div>
+
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-400 mb-2">
-                Amount
+              <label className="block text-sm font-medium text-text-secondary">
+                Amount (₹)
               </label>
-              <input
+              <Input
                 type="number"
                 ref={amountRef}
                 value={amount}
                 onChange={handleAmountChange}
-                className={`w-full p-3 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-sm ${
-                  amountError ? "border-red-500" : ""
-                }`}
                 placeholder="0.00"
                 step="0.01"
+                className={amountError ? 'border-error' : ''}
               />
+              {amountError && (
+                <p className="text-xs text-error mt-1">{amountError}</p>
+              )}
             </div>
           </div>
-          <div className="flex justify-end space-x-2 mt-6">
-            <button
+
+          <DialogFooter>
+            <Button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white bg-gray-700 transition-colors duration-300"
+              variant="ghost"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleUpdate}
-              disabled={!description || parseFloat(amount) <= 0}
-              className="px-6 py-2 rounded-lg text-sm font-medium bg-purple-500 hover:bg-purple-600 text-white transition-colors duration-300"
+              disabled={!description || parseFloat(amount) <= 0 || !!amountError}
             >
               Save Changes
-            </button>
-          </div>
-        </div>
-        {showSnackbar && (
-          <Snackbar
-            message={snackbarMessage}
-            type={snackbarType}
-            onClose={() => setShowSnackbar(false)}
-          />
-        )}
-      </div>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {showSnackbar && (
+        <Snackbar
+          message={snackbarMessage}
+          type={snackbarType}
+          onClose={() => setShowSnackbar(false)}
+        />
+      )}
     </>
   );
 };

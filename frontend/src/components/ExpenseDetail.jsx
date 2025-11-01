@@ -21,7 +21,7 @@ const ExpenseDetail = ({ expense, onBack, onSave, group, userId }) => {
   if (!expense) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader size="lg" className="text-purple-light" />
+        <Loader size="lg" />
       </div>
     );
   }
@@ -78,88 +78,117 @@ const ExpenseDetail = ({ expense, onBack, onSave, group, userId }) => {
   };
 
   return (
-    <div className="bg-dark-surface p-8 rounded-2xl shadow-lg max-w-2xl mx-auto text-gray">
+    <div className="space-y-6">
       {/* Back Button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-gray-medium hover:text-purple-light transition-colors duration-200 mb-6 group"
+        className="flex items-center gap-2 text-text-secondary hover:text-primary transition-colors duration-200 group tap-target"
       >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-        <span>Back to Group</span>
+        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />
+        <span className="text-sm font-medium">Back to Group</span>
       </button>
 
       {/* Loader during delete operation */}
       {isLoading ? (
-        <Loader size="lg" className="text-purple-light my-10" />
+        <div className="flex justify-center py-12">
+          <Loader size="lg" />
+        </div>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-light to-purple bg-clip-text text-transparent">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
               Expense Details
             </h2>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleEditClick}
-                className="p-2 rounded-full hover:bg-purple/10 transition-colors duration-200"
+                className="p-2 rounded-lg hover:bg-background-elevated transition-colors tap-target"
                 title="Edit Expense"
               >
-                <PenLine className="w-5 h-5 text-purple-light" />
+                <PenLine className="w-5 h-5 text-text-secondary hover:text-primary transition-colors" />
               </button>
               <button
                 onClick={handleDeleteClick}
-                className="p-2 rounded-full hover:bg-red-600/10 transition-colors duration-200"
+                className="p-2 rounded-lg hover:bg-error/10 transition-colors tap-target"
                 title="Delete Expense"
               >
-                <Trash2 className="w-5 h-5 text-red-500" />
+                <Trash2 className="w-5 h-5 text-error" />
               </button>
             </div>
           </div>
 
-          <div className="mb-8 border-b border-gray-dark pb-6 space-y-4">
-            <div className="flex items-center gap-2 text-gray-medium">
-              <User2 className="w-4 h-4" />
-              <p>{paid_by?.name || "Unknown"}</p>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-5xl font-bold text-purple-light tracking-tight">
-                ₹{amount?.toFixed(2) || "0.00"}
-              </p>
-              <p className="text-xl text-gray-medium">{description}</p>
-            </div>
-
-            <p className="text-sm text-gray-medium">
-              Created on {new Date(created_at).toLocaleDateString()}
+          {/* Amount Card */}
+          <div className="p-4 sm:p-6 rounded-xl bg-background-surface border border-border">
+            <p className="text-sm text-text-muted font-medium mb-2">Amount</p>
+            <p className="text-4xl sm:text-5xl font-bold text-primary">
+              ₹{amount?.toFixed(2) || "0.00"}
             </p>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-purple-light">
-              Participants
+          {/* Paid By Card */}
+          <div className="p-4 sm:p-6 rounded-xl bg-background-surface border border-border">
+            <p className="text-sm text-text-muted font-medium mb-3">Paid By</p>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <User2 className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-base text-text-primary font-medium">
+                {paid_by?.name || "Unknown"}
+              </p>
+            </div>
+          </div>
+
+          {/* Description Card */}
+          <div className="p-4 sm:p-6 rounded-xl bg-background-surface border border-border">
+            <p className="text-sm text-text-muted font-medium mb-3">Description</p>
+            <p className="text-base text-text-primary">
+              {description || "No description"}
+            </p>
+          </div>
+
+          {/* Date Card */}
+          <div className="p-4 sm:p-6 rounded-xl bg-background-surface border border-border">
+            <p className="text-sm text-text-muted font-medium mb-2">Created On</p>
+            <p className="text-base text-text-primary">
+              {new Date(created_at).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+              })}
+            </p>
+          </div>
+
+          {/* Participants Card */}
+          <div className="p-4 sm:p-6 rounded-xl bg-background-surface border border-border">
+            <h3 className="text-base font-semibold text-text-primary mb-4">
+              Participants ({participants?.length || 0})
             </h3>
-            <ul className="space-y-3">
+            <div className="space-y-2">
               {participants?.map((participant) => (
-                <li
+                <div
                   key={participant.id}
-                  className="flex justify-between items-center p-4 rounded-xl bg-dark hover:bg-gray-dark/20 transition-all duration-200 border border-gray-dark/20"
+                  className="flex justify-between items-center p-3 rounded-lg bg-background-elevated hover:bg-background-elevated border border-border transition-all"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple/20 flex items-center justify-center">
-                      <span className="text-purple-light text-sm">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary text-sm font-semibold">
                         {participant.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <span className="text-gray-medium">{participant.name}</span>
+                    <span className="text-text-primary text-sm font-medium truncate">
+                      {participant.name}
+                    </span>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-sm text-gray-medium">owes</span>
-                    <span className="font-semibold text-teal-refresh">
+                  <div className="flex flex-col items-end flex-shrink-0 ml-2">
+                    <span className="text-xs text-text-muted">owes</span>
+                    <span className="font-semibold text-success text-sm">
                       ₹{participant.amount_owed?.toFixed(2) || "0.00"}
                     </span>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </>
       )}

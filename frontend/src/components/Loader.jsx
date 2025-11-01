@@ -28,14 +28,14 @@ const Loader = ({ size = "md", className = "" }) => {
           cx="25"
           cy="25"
           r="20"
-          className="stroke-purple-light/30"
+          className="stroke-primary/30"
           {...baseCircleStyles}
         />
         <circle
           cx="25"
           cy="25"
           r="20"
-          className="stroke-purple opacity-75"
+          className="stroke-primary opacity-75"
           {...baseCircleStyles}
           strokeDasharray="80"
           strokeDashoffset="60"
@@ -50,7 +50,7 @@ const Loader = ({ size = "md", className = "" }) => {
             attributeName="stroke"
             dur="6s"
             repeatCount="indefinite"
-            values="#6b5b8a;#b7a2d5;#3ebf77;#6b5b8a"
+            values="#fb923c;#fdba74;#84cc16;#fb923c"
           />
         </circle>
       </svg>

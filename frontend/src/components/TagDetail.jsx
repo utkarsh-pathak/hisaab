@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-import { Calendar, ChevronLeft } from "lucide-react";
+import { Calendar, ChevronLeft, Receipt } from "lucide-react";
 import Loader from "./Loader";
 import Snackbar from "./Snackbar";
 import { setActiveContext, setExpenseCreatedForTag } from "../store";
 import SelfExpenseDetail from "./SelfExpenseDetail";
+import { GlassCard } from "./ui/glass-card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { AmountDisplay } from "./ui/amount-display";
+import { EmptyState } from "./ui/empty-state";
+import { cn } from "@/lib/utils";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -107,76 +113,79 @@ const TagDetail = ({ tagId, onBack }) => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
-      <div className="bg-gradient-to-b from-dark to-dark-surface rounded-3xl shadow-xl p-8 space-y-6">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-purple-light">
-            Tagged Expenses
-          </h2>
-          <button
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-300"
+            variant="ghost"
+            size="icon"
+            className="tap-target"
           >
             <ChevronLeft className="w-5 h-5" />
-            <span>Back to Tags</span>
-          </button>
+          </Button>
+          <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
+            Tagged Expenses
+          </h2>
         </div>
+      </div>
 
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader size="lg" />
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {expenses.map((expense) => {
-              const isCredit = expense.amount < 0;
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader size="lg" />
+        </div>
+      ) : expenses.length === 0 ? (
+        <EmptyState
+          icon={Receipt}
+          title="No expenses yet"
+          description="Add an expense to this tag to start tracking your spending."
+        />
+      ) : (
+        <div className="space-y-2.5">
+          {expenses.map((expense) => {
+            const isCredit = expense.amount < 0;
+            const formattedDate = formatDate(expense.created_at);
+            const formattedTime = formatTime(expense.created_at);
 
-              return (
-                <div
-                  key={expense.id}
-                  className="relative overflow-hidden bg-gradient-to-br from-dark-surface to-dark/60 backdrop-blur-md rounded-xl p-6 border border-gray-medium/10 hover:border-purple-light/20 transition-all duration-300 group"
-                  onClick={() => handleExpenseClick(expense)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                      <h3 className="text-base font-semibold text-purple-light-200">
-                        {expense.description || "-"}
-                      </h3>
-                      <div className="flex items-center space-x-3 text-xs text-gray-400">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDate(expense.created_at)}</span>
-                        <span>{formatTime(expense.created_at)}</span>
-                      </div>
+            return (
+              <div
+                key={expense.id}
+                onClick={() => handleExpenseClick(expense)}
+                className="cursor-pointer p-3.5 rounded-xl bg-background-surface hover:bg-background-elevated transition-all group border border-transparent hover:border-primary/20"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  {/* Description and Date - Left side */}
+                  <div className="flex-1 min-w-0 space-y-0.5">
+                    <h3 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors line-clamp-1">
+                      {expense.description || "No description"}
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-xs text-text-muted">
+                      <Calendar className="w-3 h-3 flex-shrink-0" />
+                      <span>{formattedDate}</span>
+                      <span>•</span>
+                      <span>{formattedTime}</span>
                     </div>
+                  </div>
+
+                  {/* Amount Badge - Right side */}
+                  <div className="flex-shrink-0">
                     <div
-                      className={`flex items-center space-x-2 text-sm font-semibold px-2 py-1 rounded-full ${
-                        isCredit
-                          ? "text-green-400 bg-green-900/50"
-                          : "text-red-400 bg-red-900/50"
-                      }`}
+                      className="text-sm font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap"
+                      style={{
+                        backgroundColor: isCredit ? "rgba(132, 204, 22, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                        color: isCredit ? "#84cc16" : "#ef4444"
+                      }}
                     >
-                      {isCredit ? <span>-</span> : <span>+</span>}
-                      <span>₹{Math.abs(expense.amount).toFixed(2)}</span>
+                      {isCredit ? "-" : "+"}₹{Math.abs(expense.amount).toFixed(2)}
                     </div>
                   </div>
                 </div>
-              );
-            })}
-
-            {expenses.length === 0 && (
-              <div className="text-center py-12">
-                <ChevronLeft className="w-12 h-12 text-purple-light/30 mx-auto mb-4 rotate-180" />
-                <p className="text-xl font-semibold text-gray-400 mb-2">
-                  No expenses found
-                </p>
-                <p className="text-gray-500">
-                  Add an expense to see it listed here
-                </p>
               </div>
-            )}
-          </div>
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {showSnackbar && (
         <Snackbar
