@@ -78,9 +78,12 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
   };
 
   const handleConfirm = async () => {
+    let hasErrors = false;
+
     if (!description) {
       descriptionRef.current.classList.add("border-red-500");
       descriptionRef.current.focus();
+      hasErrors = true;
     } else {
       descriptionRef.current.classList.remove("border-red-500");
     }
@@ -88,6 +91,7 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
     if (!amount || parseFloat(amount) <= 0) {
       amountRef.current.classList.add("border-red-500");
       amountRef.current.focus();
+      hasErrors = true;
     } else {
       amountRef.current.classList.remove("border-red-500");
     }
@@ -95,13 +99,19 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
     if (!payer) {
       setSnackbarMessage("Please select who paid.");
       setSnackbarType("error");
-      setShowSnackbar(true); // Show snackbar on success
+      setShowSnackbar(true);
+      return; // Stop execution
     }
 
     if (!selectedParticipants || selectedParticipants.length === 0) {
       setSnackbarMessage("Please select at least one participant.");
       setSnackbarType("error");
-      setShowSnackbar(true); // Show snackbar on success
+      setShowSnackbar(true);
+      return; // Stop execution
+    }
+
+    if (hasErrors) {
+      return; // Stop execution if description or amount is invalid
     }
 
     const payer_id = payer.id === "me" ? userId : payer.id;
@@ -193,14 +203,19 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
     <>
       {loading && <Loader size="md" />}
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-lg max-h-[95vh] sm:max-h-[90vh] flex flex-col p-0">
-          <DialogHeader className="px-4 sm:px-6 py-4">
-            <DialogTitle>Add Expense</DialogTitle>
+        <DialogContent className="sm:max-w-2xl p-0">
+          {/* Header with drag handle for mobile */}
+          <div className="flex sm:hidden justify-center pt-3 pb-2">
+            <div className="w-12 h-1 bg-border rounded-full" />
+          </div>
+
+          <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 pb-2">
+            <DialogTitle className="text-xl sm:text-2xl">Add Expense</DialogTitle>
           </DialogHeader>
 
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6">
-            <div className="space-y-4 pb-4 sm:pb-6">
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 overscroll-contain">
+            <div className="space-y-3 sm:space-y-4 pb-4 sm:pb-6">
               {/* Description Input */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-text-secondary">
@@ -338,7 +353,7 @@ const ExpenseAddModal = ({ friends, groups, onClose, userId }) => {
           </div>
 
           {/* Footer - Fixed */}
-          <DialogFooter className="px-4 sm:px-6 py-4 gap-2">
+          <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 pb-4 sm:pb-4 gap-2 border-t border-border/50 bg-background-surface/80 backdrop-blur-sm">
             <Button
               onClick={onClose}
               variant="ghost"

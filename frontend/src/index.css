@@ -53,6 +53,7 @@
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgba(251, 146, 60, 0.5) transparent;
+    -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -69,6 +70,11 @@
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     @apply bg-primary/70;
+  }
+
+  /* Overscroll behavior for modals */
+  .overscroll-contain {
+    overscroll-behavior: contain;
   }
 }
 

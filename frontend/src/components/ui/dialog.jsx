@@ -26,17 +26,20 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
-        "bg-background-surface border border-border p-6 rounded-2xl",
-        "data-[state=open]:animate-scale-in",
-        "duration-200",
-        "max-h-[90vh] overflow-y-auto custom-scrollbar",
+        "fixed z-50 w-full",
+        // Mobile: bottom sheet style
+        "bottom-0 left-0 right-0 max-h-[85vh] rounded-t-3xl",
+        // Desktop: centered modal
+        "sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:rounded-2xl sm:max-h-[90vh]",
+        "bg-background-surface border border-border sm:border",
+        "data-[state=open]:animate-slide-up sm:data-[state=open]:animate-scale-in",
+        "duration-200 flex flex-col",
         className
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-lg opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none tap-target">
+      <DialogPrimitive.Close className="absolute right-4 top-4 z-10 rounded-lg opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none tap-target">
         <X className="h-5 w-5 text-text-secondary hover:text-text-primary" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
