@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import Snackbar from "./Snackbar";
 import ParticipantSelect from "./FriendSelect";
-import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const GroupAddModal = ({ onClose, onSave, friendsList }) => {
   const [groupName, setGroupName] = useState("");
@@ -19,64 +21,65 @@ const GroupAddModal = ({ onClose, onSave, friendsList }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
-      <div className="my-8 bg-dark-surface rounded-xl shadow-lg max-w-lg w-full">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-dark">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold text-white">Add New Group</h3>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-dark rounded-lg transition-colors duration-200"
-            >
-              <X className="w-5 h-5 text-gray-400 hover:text-white" />
-            </button>
-          </div>
-        </div>
+    <>
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-lg max-h-[95vh] sm:max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-4 sm:px-6 py-4">
+            <DialogTitle>Add New Group</DialogTitle>
+          </DialogHeader>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          <label className="block">
-            <span className="text-gray font-medium">Group Name:</span>
-            <input
-              type="text"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              className="w-full mt-2 border border-gray-medium bg-dark px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-light focus:border-transparent outline-none text-gray transition-all duration-200"
-              required
-            />
-          </label>
-          <label className="block">
-            <span className="text-gray font-medium">Participants:</span>
-            <div className="mt-2">
-              <ParticipantSelect
-                friends={friendsList}
-                selectedParticipants={selectedParticipants}
-                setSelectedParticipants={setSelectedParticipants}
-                showPayerDropdown={false}
-                placeholderText="Search and select participants"
-                noParticipantsMessage="No friends found."
-              />
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6">
+            <div className="space-y-6 pb-4 sm:pb-6">
+              {/* Group Name Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-text-secondary">
+                  Group Name
+                </label>
+                <Input
+                  type="text"
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                  placeholder="Enter group name"
+                  required
+                />
+              </div>
+
+              {/* Participants Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-text-secondary">
+                  Participants
+                </label>
+                <ParticipantSelect
+                  friends={friendsList}
+                  selectedParticipants={selectedParticipants}
+                  setSelectedParticipants={setSelectedParticipants}
+                  showPayerDropdown={false}
+                  placeholderText="Search and select participants"
+                  noParticipantsMessage="No friends found."
+                />
+              </div>
             </div>
-          </label>
-        </div>
+          </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-gray-dark bg-dark/40 flex justify-end space-x-4">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 text-gray hover:text-white transition-colors duration-200"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-6 py-2 bg-purple hover:bg-purple-darker text-white rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            Save Group
-          </button>
-        </div>
-      </div>
+          {/* Footer - Fixed */}
+          <DialogFooter className="px-4 sm:px-6 py-4 gap-2">
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              className="flex-1 sm:flex-initial"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="flex-1 sm:flex-initial"
+            >
+              Save Group
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Snackbar for error message */}
       {showSnackbar && (
@@ -85,7 +88,7 @@ const GroupAddModal = ({ onClose, onSave, friendsList }) => {
           onClose={() => setShowSnackbar(false)}
         />
       )}
-    </div>
+    </>
   );
 };
 

@@ -150,7 +150,7 @@ const SelfExpenseDetail = ({ expense, onBack, onSave, userId }) => {
               Description
             </p>
             <p className="text-sm sm:text-base text-text-primary font-medium">
-              {description || "No description"}
+              {description || "-"}
             </p>
           </div>
 

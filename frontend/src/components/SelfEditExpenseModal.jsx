@@ -49,14 +49,6 @@ const SelfEditExpenseModal = ({ expense, onClose, onUpdate, userId }) => {
 
     let valid = true;
 
-    if (!description) {
-      descriptionRef.current.classList.add("border-red-500");
-      descriptionRef.current.focus();
-      valid = false;
-    } else {
-      descriptionRef.current.classList.remove("border-red-500");
-    }
-
     if (!amount || parseFloat(amount) === 0) {
       amountRef.current.classList.add("border-red-500");
       amountRef.current.focus();
@@ -124,7 +116,7 @@ const SelfEditExpenseModal = ({ expense, onClose, onUpdate, userId }) => {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-text-secondary">
-                Description
+                Description (Optional)
               </label>
               <Input
                 type="text"
@@ -132,7 +124,6 @@ const SelfEditExpenseModal = ({ expense, onClose, onUpdate, userId }) => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What's this expense for?"
-                className={!description && descriptionRef.current?.classList.contains('border-red-500') ? 'border-error' : ''}
               />
             </div>
 
@@ -164,7 +155,7 @@ const SelfEditExpenseModal = ({ expense, onClose, onUpdate, userId }) => {
             </Button>
             <Button
               onClick={handleUpdate}
-              disabled={!description || parseFloat(amount) <= 0 || !!amountError}
+              disabled={parseFloat(amount) <= 0 || !!amountError}
             >
               Save Changes
             </Button>

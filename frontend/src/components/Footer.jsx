@@ -3,7 +3,7 @@ import { IndianRupee } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-background-surface border-t border-border p-6 w-full text-center mt-auto">
+    <footer className="hidden md:block bg-background-surface border-t border-border p-6 w-full text-center mt-auto">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-center gap-2 mb-2">
           <div className="p-1.5 rounded-lg bg-primary/20">

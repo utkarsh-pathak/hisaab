@@ -86,4 +86,17 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
+
+  /* Checkbox styling to use primary color */
+  input[type="checkbox"].form-checkbox {
+    @apply text-primary border-border rounded transition-colors;
+  }
+
+  input[type="checkbox"].form-checkbox:focus {
+    @apply ring-primary ring-2 ring-offset-0;
+  }
+
+  input[type="checkbox"].form-checkbox:checked {
+    @apply bg-primary border-primary;
+  }
 }

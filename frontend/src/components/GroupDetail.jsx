@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setExpenseCreated } from "../store";
+import { setExpenseCreated, setSelectedGroup } from "../store";
 import axios from "axios";
 import ExpenseDetail from "./ExpenseDetail";
 import AmountInputModal from "./AmountInputModal";
@@ -15,6 +15,7 @@ import {
   GroupParticipantsModal,
   ParticipantsIcon,
 } from "./GroupParticipantsModal";
+import { Button } from "./ui/button";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -73,6 +74,29 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
       setItems([]);
     } finally {
       if (showLoader) setLoading(false);
+    }
+  };
+
+  // Function to refresh group data and update Redux state
+  const handleGroupUpdate = async () => {
+    try {
+      // Fetch updated groups list from parent
+      await fetchGroups();
+
+      // Fetch the specific group to get updated members
+      const groupResponse = await axios.get(
+        `${API_URL}/groups/${group.group_id}?user_id=${userId}`
+      );
+      const updatedGroup = groupResponse.data;
+
+      // Update Redux state with fresh group data
+      dispatch(setSelectedGroup(updatedGroup));
+
+      // Also refresh expenses and debts
+      await fetchData(false);
+      await fetchGroupDebtSummary(false);
+    } catch (error) {
+      console.error("Error refreshing group data:", error);
     }
   };
 
@@ -307,7 +331,7 @@ const GroupDetail = ({ group, onBack, userId, fetchGroups }) => {
           userId={userId}
           isOpen={showUpdateModal}
           onClose={() => setShowUpdateModal(false)}
-          onUpdate={fetchData} // Refresh group data on update
+          onUpdate={handleGroupUpdate} // Refresh group data and update Redux on update
         />
 
         {showAmountInputModal && selectedUser && (

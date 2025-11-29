@@ -4,6 +4,9 @@ import Loader from "./Loader";
 import Snackbar from "./Snackbar";
 import { useDispatch } from "react-redux";
 import { setExpenseCreatedForTag } from "../store";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,23 +16,52 @@ const TagExpenseModal = ({ onClose, userId, tagId, onConfirm }) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarType, setSnackbarType] = useState("success");
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
   const dispatch = useDispatch();
+
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    setAmount(value);
+
+    if (value && !/^\d+(\.\d{1,2})?$/.test(value)) {
+      const floatValue = parseFloat(value);
+      if (!isNaN(floatValue)) {
+        const roundedUp = (Math.ceil(floatValue * 100) / 100).toFixed(2);
+        const roundedDown = (Math.floor(floatValue * 100) / 100).toFixed(2);
+        setAmountError(
+          `Please enter a valid value. The two nearest values are ${roundedDown} and ${roundedUp}.`
+        );
+      } else {
+        setAmountError("Please enter a valid number.");
+      }
+    } else {
+      setAmountError("");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const description = e.target.description.value || null; // Optional field
-    const amount = parseFloat(e.target.amount.value);
+    if (amountError) {
+      setSnackbarMessage(amountError);
+      setSnackbarType("error");
+      setShowSnackbar(true);
+      return;
+    }
+
+    const parsedAmount = parseFloat(amount);
 
     // Adjust amount based on expense type
     const finalAmount =
-      expenseType === "negative" ? -Math.abs(amount) : Math.abs(amount);
+      expenseType === "negative" ? -Math.abs(parsedAmount) : Math.abs(parsedAmount);
 
     const data = {
       amount: finalAmount,
       user_id: userId,
       tag_id: tagId.tag,
-      description,
+      description: description.trim() || null,
     };
 
     try {
@@ -59,102 +91,106 @@ const TagExpenseModal = ({ onClose, userId, tagId, onConfirm }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-3xl p-8 shadow-lg w-[40rem]">
-        {" "}
-        {/* Increased width, rounded corners */}
-        <h2 className="text-2xl font-semibold text-white mb-6">
-          Add Expense
-        </h2>
-        {isLoading && (
-          <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
-            <Loader size="lg" />
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Expense Type Toggle */}
-          <div>
-            <label className="block text-xs font-medium text-gray-400 mb-2">
-              Expense Type
-            </label>
-            <div className="flex space-x-2">
-              <button
-                type="button"
-                onClick={() => setExpenseType("positive")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-                  expenseType === "positive"
-                    ? "bg-purple-500 text-white hover:bg-purple-600"
-                    : "bg-gray-700 text-gray-400 hover:bg-gray-600"
-                }`}
-              >
-                Debit
-              </button>
-              <button
-                type="button"
-                onClick={() => setExpenseType("negative")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-                  expenseType === "negative"
-                    ? "bg-purple-500 text-white hover:bg-purple-600"
-                    : "bg-gray-700 text-gray-400 hover:bg-gray-600"
-                }`}
-              >
-                Credit
-              </button>
+    <>
+      {isLoading && <Loader size="md" />}
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Expense</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4 py-4">
+            {/* Expense Type Toggle */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-text-secondary">
+                Expense Type
+              </label>
+              <div className="flex gap-1.5 p-1 bg-background-surface rounded-xl border border-border w-full">
+                <button
+                  type="button"
+                  onClick={() => setExpenseType("positive")}
+                  className={`flex-1 py-2.5 px-3 rounded-lg transition-all text-sm font-medium min-h-[44px] ${
+                    expenseType === "positive"
+                      ? "bg-error text-white shadow-md"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
+                >
+                  Debit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExpenseType("negative")}
+                  className={`flex-1 py-2.5 px-3 rounded-lg transition-all text-sm font-medium min-h-[44px] ${
+                    expenseType === "negative"
+                      ? "bg-success text-black shadow-md"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
+                >
+                  Credit
+                </button>
+              </div>
             </div>
-          </div>
-          {/* Description Input */}
-          <div>
-            <label className="block text-xs font-medium text-gray-400 mb-2">
-              Description (Optional)
-            </label>
-            <input
-              type="text"
-              name="description"
-              className="w-full p-3 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-sm"
-              placeholder="Enter description"
-            />
-          </div>
-          {/* Amount Input */}
-          <div>
-            <label className="block text-xs font-medium text-gray-400 mb-2">
-              Amount
-            </label>
-            <input
-              type="number"
-              name="amount"
-              className="w-full p-3 bg-gray-700 text-gray-200 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500/20 transition-colors duration-300 text-sm"
-              step="0.01"
-              required
-              placeholder="Enter amount"
-            />
-          </div>
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-2">
-            <button
+
+            {/* Description Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-text-secondary">
+                Description (Optional)
+              </label>
+              <Input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter description"
+              />
+            </div>
+
+            {/* Amount Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-text-secondary">
+                Amount (₹)
+              </label>
+              <Input
+                type="number"
+                value={amount}
+                onChange={handleAmountChange}
+                step="0.01"
+                required
+                placeholder="0.00"
+                className={amountError ? 'border-error' : ''}
+              />
+              {amountError && (
+                <p className="text-xs text-error mt-1">{amountError}</p>
+              )}
+            </div>
+          </form>
+
+          <DialogFooter>
+            <Button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white bg-gray-700 transition-colors duration-300"
+              variant="ghost"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="px-6 py-2 rounded-lg text-sm font-medium bg-purple-500 hover:bg-purple-600 text-white transition-colors duration-300"
+              onClick={handleSubmit}
+              disabled={isLoading || !amount || parseFloat(amount) <= 0 || !!amountError}
             >
               Add Expense
-            </button>
-          </div>
-        </form>
-        {showSnackbar && (
-          <Snackbar
-            message={snackbarMessage}
-            type={snackbarType}
-            onClose={() => setShowSnackbar(false)}
-          />
-        )}
-      </div>
-    </div>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {showSnackbar && (
+        <Snackbar
+          message={snackbarMessage}
+          type={snackbarType}
+          onClose={() => setShowSnackbar(false)}
+        />
+      )}
+    </>
   );
 };
 

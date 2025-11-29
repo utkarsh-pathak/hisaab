@@ -29,7 +29,7 @@ const TagDetail = ({ tagId, onBack }) => {
 
   useEffect(() => {
     dispatch(setActiveContext("Tags"));
-    return () => dispatch(setActiveContext(null));
+    // Don't clear context on unmount - let parent component handle it
   }, [dispatch]);
 
   const fetchExpenses = async () => {
@@ -158,7 +158,7 @@ const TagDetail = ({ tagId, onBack }) => {
                   {/* Description and Date - Left side */}
                   <div className="flex-1 min-w-0 space-y-0.5">
                     <h3 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors line-clamp-1">
-                      {expense.description || "No description"}
+                      {expense.description || "-"}
                     </h3>
                     <div className="flex items-center gap-1.5 text-xs text-text-muted">
                       <Calendar className="w-3 h-3 flex-shrink-0" />

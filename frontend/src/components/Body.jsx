@@ -21,7 +21,7 @@ const Body = ({ activeTab, user }) => {
   const [error, setError] = useState(null);
   const [selfExpenses, setSelfExpenses] = useState([]); // State for self expenses
   const activeContext = useSelector((state) => state.appContext.activeContext);
-  const selectedTag = useSelector((state) => state.selectedTag);
+  const selectedTag = useSelector((state) => state.selectedTag.tag);
 
   const renderModal = () => {
     if (activeContext === "Tags" && selectedTag) {
@@ -156,7 +156,7 @@ const Body = ({ activeTab, user }) => {
     return (
       <>
         <div className="flex-grow w-full min-h-screen bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-20 md:pb-6">
             {activeTab === "Groups" && (
               <Groups groups={groups} friends={friends} userId={userId} />
             )}

@@ -112,9 +112,8 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Spacers for fixed headers */}
-      <div className="h-16" /> {/* Top header spacer */}
-      <div className="h-20 md:h-0" /> {/* Bottom nav spacer - mobile only */}
+      {/* Spacer for fixed top header only */}
+      <div className="h-16" />
     </>
   );
 };

@@ -6,7 +6,7 @@ import Loader from "./Loader";
 import Snackbar from "./Snackbar";
 import TagDetail from "./TagDetail";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedTag, setActiveContext } from "../store";
+import { setSelectedTag, clearSelectedTag, setActiveContext } from "../store";
 import ConfirmationModal from "./ConfirmationModal";
 import { GlassCard } from "./ui/glass-card";
 import { Button } from "./ui/button";
@@ -21,7 +21,22 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 // Tag Card Component - Warm Dark Mode
 const TagCard = ({ tag, onClick, onDelete }) => {
   const isCredit = tag.total_amount < 0;
+  const isSettled = tag.total_amount === 0;
   const hasExpenses = tag.total_amount !== 0;
+
+  // Determine background and text color
+  const getAmountStyle = () => {
+    if (isSettled) {
+      return {
+        backgroundColor: "rgba(132, 204, 22, 0.15)",
+        color: "#84cc16"
+      };
+    }
+    return {
+      backgroundColor: isCredit ? "rgba(132, 204, 22, 0.15)" : "rgba(239, 68, 68, 0.15)",
+      color: isCredit ? "#84cc16" : "#ef4444"
+    };
+  };
 
   return (
     <div
@@ -41,17 +56,12 @@ const TagCard = ({ tag, onClick, onDelete }) => {
 
         {/* Right side - Amount and Delete */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          {hasExpenses && (
-            <div
-              className="text-xs font-bold px-2.5 py-1 rounded-lg whitespace-nowrap"
-              style={{
-                backgroundColor: isCredit ? "rgba(132, 204, 22, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                color: isCredit ? "#84cc16" : "#ef4444"
-              }}
-            >
-              {isCredit ? "-" : "+"}₹{Math.abs(tag.total_amount).toFixed(2)}
-            </div>
-          )}
+          <div
+            className="text-xs font-bold px-2.5 py-1 rounded-lg whitespace-nowrap"
+            style={getAmountStyle()}
+          >
+            {isSettled ? "" : (isCredit ? "-" : "+")}₹{Math.abs(tag.total_amount).toFixed(2)}
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -86,7 +96,11 @@ const Self = ({ user }) => {
 
   useEffect(() => {
     dispatch(setActiveContext("Self")); // Set the context to "Self" on mount
-    return () => dispatch(setActiveContext(null)); // Clear the context on unmount
+    dispatch(clearSelectedTag()); // Clear any selected tag when viewing tag list
+    return () => {
+      dispatch(setActiveContext(null)); // Clear the context on unmount
+      dispatch(clearSelectedTag()); // Clear the selected tag on unmount
+    };
   }, [dispatch]);
 
   useEffect(() => {
@@ -175,6 +189,7 @@ const Self = ({ user }) => {
         onBack={() => {
           console.log("167");
           dispatch(setActiveContext("Self"));
+          dispatch(clearSelectedTag()); // Clear the Redux tag state
           setSelectedTagId(null);
         }}
       />
